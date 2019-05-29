@@ -21,3 +21,8 @@ Here are the major areas that I'd like to tackle next:
 * Rendering creep, tower, link, etc. actions (particle systems are an excellent way to make these visually appealing)
 * Creep Say (I'm imagining a floating text that appears above their heads and drifts up to eventually disappear)
 * ~Figure out the best way to subscribe/unsubscribe from rooms, fog of war, etc.~
+
+## Requirements
+* Unity 2018.3.7f1
+* Blender 2.79
+  * If no models are showing up, you need to install blender, .blend files are used in unity
