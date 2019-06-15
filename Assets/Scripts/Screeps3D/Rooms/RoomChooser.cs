@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Screeps_API;
+using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Timers;
-using Common;
-using Screeps_API;
+using System.Linq;
 using TMPro;
 using UnityEngine;
-using System.Linq;
+using UnityEngine.UI;
 
 namespace Screeps3D.Rooms
 {
@@ -15,20 +15,46 @@ namespace Screeps3D.Rooms
 
         [SerializeField] private TMP_Dropdown _shardInput;
         [SerializeField] private TMP_InputField _roomInput;
+        [SerializeField] private Toggle _pvpSpectateToggle;
+
+        private readonly string _prefsKey = "PvpSpectateToggle";
+
         private List<string> _shards = new List<string>();
         private System.Random random;
 
+        private IEnumerator _findPvpRooms;
+
         private void Start()
         {
-            _roomInput.onSubmit.AddListener(RoomChosen);
+            _roomInput.onSubmit.AddListener(GetAndChooseRoom);
             if (ScreepsAPI.IsConnected)
                 ScreepsAPI.Http.GetRooms(ScreepsAPI.Me.UserId, InitializeChooser);
             else
                 throw new Exception("RoomChooser assumes ScreepsAPI.IsConnected == true at start of scene");
             random = new System.Random();
+
+            _pvpSpectateToggle.isOn = PlayerPrefs.GetInt(_prefsKey, 1) == 1;
+            _pvpSpectateToggle.onValueChanged.AddListener(OnTogglePvpSpectate);
         }
 
-        private IEnumerator<WaitForSeconds> FindPvpRoom()
+        private void OnTogglePvpSpectate(bool isOn)
+        {
+            PlayerPrefs.SetInt(_prefsKey, isOn ? 1 : 0);
+
+            if (isOn)
+            {
+                this.GetAndChooseRoom("E0S0");
+
+                _findPvpRooms = FindPvpRoom();
+                StartCoroutine(_findPvpRooms);
+            }
+            else
+            {
+                StopCoroutine(_findPvpRooms);
+            }
+        }
+
+        private IEnumerator FindPvpRoom()
         {
 
             while (true)
@@ -78,7 +104,9 @@ namespace Screeps3D.Rooms
                 if (rooms.Count > 0)
                 {
                     var room = rooms.ElementAt(random.Next(rooms.Count));
-                    this.GetAndChooseRoom(room.GetField("_id").str);
+                    var roomName = room.GetField("_id").str;
+                    _roomInput.text = roomName;
+                    this.GetAndChooseRoom(roomName);
                 }
                 else
                 {
@@ -139,22 +167,6 @@ namespace Screeps3D.Rooms
               }
             }
              * */
-        }
-
-        private void RoomChosen(string roomName)
-        {
-            if (roomName == "auto")
-            {
-                this.GetAndChooseRoom("E0S0");
-
-                StartCoroutine(FindPvpRoom());
-                return;
-            }
-            else
-            {
-                StopCoroutine(FindPvpRoom());
-                this.GetAndChooseRoom(roomName);
-            }
         }
 
         private void GetAndChooseRoom(string roomName)

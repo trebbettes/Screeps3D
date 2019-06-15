@@ -21,6 +21,16 @@ Here are the major areas that I'd like to tackle next:
 * Rendering creep, tower, link, etc. actions (particle systems are an excellent way to make these visually appealing)
 * Creep Say (I'm imagining a floating text that appears above their heads and drifts up to eventually disappear)
 * ~Figure out the best way to subscribe/unsubscribe from rooms, fog of war, etc.~
+  
+---
+The following was added by thmsn
+
+## Requirements
+* Unity 2018.3.7f1
+* Blender 2.79
+  * If no models are showing up, you need to install blender, .blend files are used in unity
+
+
 
 ### ideas
 * Crumble walls based on hitpoints
@@ -28,9 +38,14 @@ Here are the major areas that I'd like to tackle next:
   * Render your "friends" in another color than red
 * Make resource/material nodes larger / smaller based on resource amount available
 * color code material nodes based on the type of material
+* minimap
 
 ### stuff found when rendering BotArena
- * spectator mode
+ * can we implement a spectator mode?
+   * yes xD, currently shuffles random rooms with pvp if you write "auto" as roomname
+   * ideas
+     * follow a creep? perhaps random?
+     * different camera angels
  * render safemode
  * prevent certain objects from being selected, 
  * selecting creeps and having roads selected sucks
@@ -42,9 +57,7 @@ Here are the major areas that I'd like to tackle next:
 * attacks are rendered too far (blue beam)
 * room update / connection is lost, and rooms looses all data
 * http error stays center of screen (Locked)
+* Creeps remain dorment after their TTL becomes negative
 
 
-## Requirements
-* Unity 2018.3.7f1
-* Blender 2.79
-  * If no models are showing up, you need to install blender, .blend files are used in unity
+
