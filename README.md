@@ -26,6 +26,23 @@ Here are the major areas that I'd like to tackle next:
 * Crumble walls based on hitpoints
 * Render alliances
   * Render your "friends" in another color than red
+* Make resource/material nodes larger / smaller based on resource amount available
+* color code material nodes based on the type of material
+
+### stuff found when rendering BotArena
+ * spectator mode
+ * render safemode
+ * prevent certain objects from being selected, 
+ * selecting creeps and having roads selected sucks
+ 
+ #### bugs
+* creeps not despawning
+* tombstones not showing
+* dropped energy not rendered
+* attacks are rendered too far (blue beam)
+* room update / connection is lost, and rooms looses all data
+* http error stays center of screen (Locked)
+
 
 ## Requirements
 * Unity 2018.3.7f1
