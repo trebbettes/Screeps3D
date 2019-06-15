@@ -41,8 +41,8 @@ The following was added by thmsn
 * minimap
 
 ### stuff found when rendering BotArena
- * can we implement a spectator mode?
-   * yes xD, currently shuffles random rooms with pvp if you write "auto" as roomname
+ * can we implement a spectator mode? https://github.com/bonzaiferroni/Screeps3D/issues/13
+   * yes xD, currently shuffles random rooms with pvp if you toffle PVP Spectate on
    * ideas
      * follow a creep? perhaps random?
      * different camera angels
@@ -56,6 +56,16 @@ The following was added by thmsn
 * dropped energy not rendered
 * attacks are rendered too far (blue beam)
 * room update / connection is lost, and rooms looses all data
+  * Possibly because of this
+```
+["err@room:E3S3","subscribe limit reached"]
+ 
+(Filename: C:\buildslave\unity\build\Runtime/Export/Debug.bindings.h Line: 45)
+
+recieved null data from server
+ 
+(Filename: C:\buildslave\unity\build\Runtime/Export/Debug.bindings.h Line: 45)
+```
 * http error stays center of screen (Locked)
 * Creeps remain dorment after their TTL becomes negative
 * CreepView _body.material.mainTexture = _creep.Owner.Badge; Owner is null
