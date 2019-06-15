@@ -58,6 +58,7 @@ The following was added by thmsn
 * room update / connection is lost, and rooms looses all data
 * http error stays center of screen (Locked)
 * Creeps remain dorment after their TTL becomes negative
+* CreepView _body.material.mainTexture = _creep.Owner.Badge; Owner is null
 
 
 

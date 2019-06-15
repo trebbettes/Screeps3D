@@ -26,15 +26,20 @@ namespace Screeps3D.Rooms
 
         private void Start()
         {
-            _roomInput.onSubmit.AddListener(GetAndChooseRoom);
-            if (ScreepsAPI.IsConnected)
-                ScreepsAPI.Http.GetRooms(ScreepsAPI.Me.UserId, InitializeChooser);
-            else
-                throw new Exception("RoomChooser assumes ScreepsAPI.IsConnected == true at start of scene");
             random = new System.Random();
-
             _pvpSpectateToggle.isOn = PlayerPrefs.GetInt(_prefsKey, 1) == 1;
+
+            _roomInput.onSubmit.AddListener(GetAndChooseRoom);
             _pvpSpectateToggle.onValueChanged.AddListener(OnTogglePvpSpectate);
+
+            if (ScreepsAPI.IsConnected)
+            {
+                ScreepsAPI.Http.GetRooms(ScreepsAPI.Me.UserId, InitializeChooser);
+            }
+            else
+            {
+                throw new Exception("RoomChooser assumes ScreepsAPI.IsConnected == true at start of scene");
+            }
         }
 
         private void OnTogglePvpSpectate(bool isOn)
@@ -222,7 +227,15 @@ namespace Screeps3D.Rooms
                 _shardInput.options.Add(new TMP_Dropdown.OptionData(shardName));
             }
 
-            GetAndChooseRoom("");
+
+            if (_pvpSpectateToggle.isOn)
+            {
+                this.OnTogglePvpSpectate(_pvpSpectateToggle.isOn);
+            }
+            else
+            {
+                GetAndChooseRoom("");
+            }
         }
     }
 }
