@@ -1,4 +1,5 @@
 ﻿using Screeps3D.Menus.Options;
+using System;
 using UnityEngine;
 
 namespace Common
@@ -13,6 +14,8 @@ namespace Common
         [SerializeField] private float _zoomSpeed = 5;
         [SerializeField] private float _minZoom = 1;
         [SerializeField] private float _maxZoom = 400;
+
+        public Action OnTargetReached;
 
         public static Vector3 Rotation
         {
@@ -60,7 +63,16 @@ namespace Common
 
         private void UpdatePosition()
         {
-            transform.position = Vector3.SmoothDamp(transform.position, _targetPosition, ref _posRef, .1f);
+            if (transform.position != _targetPosition)
+            {
+                transform.position = Vector3.SmoothDamp(transform.position, _targetPosition, ref _posRef, .1f);
+
+                if (transform.position == _targetPosition)
+                {
+                    if (OnTargetReached != null) OnTargetReached.Invoke();
+                }
+            }
+            
         }
 
         private void UpdateZoom()
