@@ -81,10 +81,24 @@ namespace Screeps3D.Player
             if (Physics.Raycast(ray, out hit, 200, 1 << 10))
             {
                 var roomView = hit.collider.GetComponent<RoomView>();
-                if (roomView == null || roomView.Room.ShowingObjects)
+                if (roomView == null)
                 {
                     return;
                 }
+
+                if (roomView.Room.ShowingObjects)
+                {
+                    // make sure the room we are viewing is last in the queue
+                    var nextRoom = queue.Peek();
+                    if (nextRoom == roomView.Room)
+                    {
+                        var room = queue.Dequeue();
+                        queue.Enqueue(room);
+                    }
+                    
+                    return;
+                }
+
 
                 ShowObjects(roomView.Room);
             }
