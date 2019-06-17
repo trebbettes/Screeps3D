@@ -80,7 +80,7 @@ namespace Screeps3D.Rooms
                     throw;
                 }
 
-                yield return new WaitForSeconds(15);
+                yield return new WaitForSeconds(30);
             }
         }
 
