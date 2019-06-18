@@ -48,7 +48,7 @@ namespace Screeps3D.Rooms
 
             if (isOn)
             {
-                this.GetAndChooseRoom("E0S0");
+                //this.GetAndChooseRoom("E0S0");
 
                 _findPvpRooms = FindPvpRoom();
                 StartCoroutine(_findPvpRooms);
