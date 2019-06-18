@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common;
 using Screeps_API;
 using UnityEngine;
@@ -13,6 +14,13 @@ namespace Screeps3D
 
         [SerializeField] private GameMode _defaultMode;
         [SerializeField] private FadePanel _exitCue;
+
+        public Dictionary<string, Color> PlayerColors { get; private set; }
+
+        public GameManager()
+        {
+            this.PlayerColors = new Dictionary<string, Color>();
+        }
 
         public override void Awake()
         {

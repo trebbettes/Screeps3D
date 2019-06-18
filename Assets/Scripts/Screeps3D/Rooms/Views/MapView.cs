@@ -27,9 +27,6 @@ namespace Screeps3D.Rooms.Views
         private MapDotView[,] _dots = new MapDotView[50, 50];
         private List<MapDotView> _dotList = new List<MapDotView>();
 
-        // theese should be static so players have the same color everywhere
-        private Dictionary<string, Color> playerColors = new Dictionary<string, Color>();
-
         public void Init(Room room)
         {
             Room = room;
@@ -62,10 +59,10 @@ namespace Screeps3D.Rooms.Views
                     continue;
 
                 Color randomEnemyColor;
-                if (!playerColors.TryGetValue(key, out randomEnemyColor))
+                if (!GameManager.Instance.PlayerColors.TryGetValue(key, out randomEnemyColor))
                 {
                     randomEnemyColor = Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
-                    playerColors.Add(key, randomEnemyColor);
+                    GameManager.Instance.PlayerColors.Add(key, randomEnemyColor);
                 }
 
 
