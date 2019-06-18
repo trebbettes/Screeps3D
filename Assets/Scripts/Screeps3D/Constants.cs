@@ -22,6 +22,7 @@ namespace Screeps3D
         public const string TypeMineral = "mineral";
         public const string TypePowerSpawn = "powerSpawn";
         public const string TypeSource = "source";
+        public const string TypeTombstone = "tombstone";
 
         public const float ShardHeight = 100;
 
