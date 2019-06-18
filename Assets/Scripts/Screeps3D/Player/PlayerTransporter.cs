@@ -10,7 +10,6 @@ namespace Screeps3D.Player
     public class PlayerTransporter : BaseSingleton<PlayerTransporter>
     {
         [SerializeField] private RoomChooser _chooser;
-
         [SerializeField] private PlayerGaze _playerGaze;
 
         private Stack<Room> _loadStack = new Stack<Room>();
@@ -27,10 +26,8 @@ namespace Screeps3D.Player
 
             if (_playerGaze != null)
             {
-                // disable player gaze while traveling to new room looks like we are subscribing to all the rooms we are scrolling past.
-                // while this prevents the subscription of too many rooms, it also breaks the subscriptions in general so they are not behaving as expected   
-                //CameraRig.Instance.OnTargetReached += OnTargetReached;
-                //_playerGaze.enabled = false;
+                _playerGaze.allowFocus = false;
+                CameraRig.Instance.OnTargetReached += OnTargetReached;
             }
             
             TransportPlayer(room.Position);
@@ -44,7 +41,7 @@ namespace Screeps3D.Player
         {
             Debug.Log("target reached!");
             
-            _playerGaze.enabled = true;
+            _playerGaze.allowFocus = true;
             CameraRig.Instance.OnTargetReached -= OnTargetReached;
         }
 
