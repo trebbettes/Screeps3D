@@ -26,7 +26,7 @@ namespace Screeps3D.RoomObjects
 
     */
 
-    internal class Tombstone : RoomObject, /*ICreepReferenceObject,*/ IOwnedObject 
+    internal class Tombstone : RoomObject, INamedObject, IOwnedObject 
     {
         public string UserId { get; set; }
         public ScreepsUser Owner { get; set; }
