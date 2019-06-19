@@ -90,7 +90,18 @@ namespace Screeps3D
             {3, 70000},
             {4, 100000}
         };
-        
+
+        public static class BaseMineral
+        {
+            public const string Hydrogen = "H";
+            public const string Oxygen = "O";
+            public const string Utrium = "U";
+            public const string Keanium = "K";
+            public const string Lemergium = "L";
+            public const string Zynthium = "Z";
+            public const string Catalyst = "X";
+        }
+
         public static readonly HashSet<string> ResourcesAll = new HashSet<string>()
         {
             "energy", 
