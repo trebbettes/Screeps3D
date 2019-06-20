@@ -53,7 +53,6 @@ namespace Screeps_API
                 {
                     foreach (var msgData in log.list)
                     {
-                        Debug.Log(msgData.str);
                         OnConsoleMessage(RemoveEscapes(msgData.str));
                     }
                 }

@@ -68,7 +68,7 @@ namespace Screeps3D
                 // What if they put a font tag inside a link tag? ....
                 // TODO: make links clickable
 
-                PrintMessage(string.Format("[{0}/{1}] {2} ", shard, room, text), Color.white);
+                PrintMessage(string.Format(@"<link=""{1}""><color=blue>[{0}/{1}] {2}</color></link>", shard, room, text), Color.white);
             }
 
             if (!regexMatch)
