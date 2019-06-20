@@ -53,6 +53,7 @@ namespace Screeps_API
                 {
                     foreach (var msgData in log.list)
                     {
+                        Debug.Log(msgData.str);
                         OnConsoleMessage(RemoveEscapes(msgData.str));
                     }
                 }
@@ -85,6 +86,8 @@ namespace Screeps_API
         {
             str = str.Replace("\\n", "\n");
             str = str.Replace("\\\\", "\\");
+            // handle "html" <a href=\"...
+            str = str.Replace("\\\"", "\"");
             return str;
         }
     }
