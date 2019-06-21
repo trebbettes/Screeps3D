@@ -33,7 +33,7 @@ namespace Screeps3D.Effects
         private IEnumerator Display()
         {
             //TODO: Make this look nicer and enable it.
-            yield break; // Disabled until looks better.
+            //yield break; // Disabled until looks better.
 
             _label.enabled = true;
             
