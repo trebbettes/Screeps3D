@@ -48,8 +48,6 @@ namespace Screeps3D.Rooms
 
             if (isOn)
             {
-                //this.GetAndChooseRoom("E0S0");
-
                 _findPvpRooms = FindPvpRoom();
                 StartCoroutine(_findPvpRooms);
             }
@@ -227,14 +225,14 @@ namespace Screeps3D.Rooms
                 _shardInput.options.Add(new TMP_Dropdown.OptionData(shardName));
             }
 
+            if (!string.IsNullOrEmpty(_roomInput.text))
+            {
+                GetAndChooseRoom(_roomInput.text);
+            }
 
             if (_pvpSpectateToggle.isOn)
             {
                 this.OnTogglePvpSpectate(_pvpSpectateToggle.isOn);
-            }
-            else
-            {
-                GetAndChooseRoom("");
             }
         }
     }
