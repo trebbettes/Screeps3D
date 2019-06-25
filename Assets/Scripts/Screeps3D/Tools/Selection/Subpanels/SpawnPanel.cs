@@ -47,7 +47,6 @@ namespace Screeps3D.Tools.Selection.Subpanels
 
         private void OnDelta(JSONObject obj)
         {
-            if (!obj.HasField("spawning")) return;
             UpdateLabel();
         }
 

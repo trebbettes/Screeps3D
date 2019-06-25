@@ -36,7 +36,11 @@
 
             UnpackUtility.Energy(this, data);
 
-            if (!data.HasField("spawning")) return; // Early
+            if (!data.HasField("spawning"))
+            {
+                SpawningName = null;
+                return;
+            }
 
             var spawningData = data["spawning"];
             if (spawningData.HasField("name"))
