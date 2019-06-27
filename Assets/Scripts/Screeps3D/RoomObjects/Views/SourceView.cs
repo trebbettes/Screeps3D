@@ -36,7 +36,6 @@ namespace Screeps3D.RoomObjects.Views
             // Map range to visibility range
             var visibility = minVisibility + (maxVisibility - minVisibility) * ((current - minimum) / (maximum - minimum));
 
-            Debug.Log("visibility is " + visibility);
             _Visibility.SetVisibility(visibility);
         }
 
