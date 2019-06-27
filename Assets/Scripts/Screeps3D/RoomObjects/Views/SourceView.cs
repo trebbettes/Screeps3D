@@ -30,11 +30,13 @@ namespace Screeps3D.RoomObjects.Views
             float maximum = Mathf.Log(maxVisibility);
 
             // Scale the visibility in such a way that a lot of the model is rendered above 50% energy
-            float current = Mathf.Log(percentage);
+
+            float current = Mathf.Log(percentage == 0 ? minVisibility : percentage);
 
             // Map range to visibility range
             var visibility = minVisibility + (maxVisibility - minVisibility) * ((current - minimum) / (maximum - minimum));
 
+            Debug.Log("visibility is " + visibility);
             _Visibility.SetVisibility(visibility);
         }
 
