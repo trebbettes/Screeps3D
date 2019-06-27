@@ -20,10 +20,21 @@ namespace Screeps3D.RoomObjects.Views
 
         public void Delta(JSONObject data)
         {
-            var visibility = _source.Energy / _source.EnergyCapacity + 0.01f/*to keep it visible and selectable, also allows the resource to regen*/;
-            // https://www.thoughtco.com/exponential-decay-definition-2312215
-            // https://en.wikipedia.org/wiki/Logarithmic_scale
-            // TODO: scale the visibility in such a way that a lot of the model is still rendered when 50% energy is left
+            var percentage = _source.Energy / _source.EnergyCapacity;
+
+            // http://james-ramsden.com/map-a-value-from-one-number-scale-to-another-formula-and-c-code/
+            float minimum = Mathf.Exp(0);
+            float maximum = Mathf.Exp(1);
+
+            // Scale the visibility in such a way that a lot of the model is rendered above 50% energy
+            float current = Mathf.Exp(percentage);
+
+            // Map exponential range to visibility range
+            var minVisibility = 0.001f; /*to keep it visible and selectable, also allows the resource to render again when regen hits*/
+            var maxVisibility = 1f;
+
+            var visibility = minVisibility + (maxVisibility - minVisibility) * ((current - minimum) / (maximum - minimum));
+
             _Visibility.SetVisibility(visibility);
         }
 
