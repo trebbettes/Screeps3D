@@ -1,4 +1,6 @@
-﻿namespace Screeps3D.RoomObjects
+﻿using Screeps3D.Rooms;
+
+namespace Screeps3D.RoomObjects
 {
     /* {
       "_id": "5a0b5e99ab17fd00012befed",
@@ -24,6 +26,14 @@
             base.Unpack(data, initial);
             UnpackUtility.Energy(this, data);
             UnpackUtility.Regeneration(this, data);
+        }
+
+        internal override void Delta(JSONObject delta, Room room)
+        {
+            base.Delta(delta, room);
+
+            if (View != null)
+                View.Delta(delta);
         }
     }
 }
