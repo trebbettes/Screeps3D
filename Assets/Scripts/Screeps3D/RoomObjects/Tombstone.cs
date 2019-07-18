@@ -48,6 +48,8 @@ namespace Screeps3D.RoomObjects
         public float StoreCapacity { get; set; }
         public float TotalResources { get; set; }
 
+        public string Saying { get; set; }
+
         internal Tombstone()
         {
             //Body = new CreepBody();
@@ -67,6 +69,20 @@ namespace Screeps3D.RoomObjects
                 {
                     Name = nameData.str;
                 }
+
+                var creepSaying = data["creepSaying"];
+
+                if (creepSaying != null)
+                {
+                    Saying = creepSaying.str;
+                }
+
+                Initialized = true;
+            }
+
+            if (!string.IsNullOrEmpty(Saying))
+            {
+                EffectsUtility.Speech(this, Saying);
             }
 
             var deathData = data["deathTime"];
