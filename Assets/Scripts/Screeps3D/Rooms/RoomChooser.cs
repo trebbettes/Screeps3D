@@ -17,7 +17,9 @@ namespace Screeps3D.Rooms
         [SerializeField] private TMP_InputField _roomInput;
         [SerializeField] private Toggle _pvpSpectateToggle;
 
-        private readonly string _prefsKey = "PvpSpectateToggle";
+        private readonly string _prefPvpSpectateToggle = "PvpSpectateToggle";
+        private readonly string _prefShard = "shard";
+        private readonly string _prefRoom = "room";
 
         private List<string> _shards = new List<string>();
         private System.Random random;
@@ -27,9 +29,9 @@ namespace Screeps3D.Rooms
         private void Start()
         {
             random = new System.Random();
-            _pvpSpectateToggle.isOn = PlayerPrefs.GetInt(_prefsKey, 1) == 1;
-
-            _roomInput.onSubmit.AddListener(GetAndChooseRoom);
+            _pvpSpectateToggle.isOn = PlayerPrefs.GetInt(_prefPvpSpectateToggle, 1) == 1;
+            _shardInput.onValueChanged.AddListener(OnSelectedShardChanged);
+            _roomInput.onSubmit.AddListener(OnSelectedRoomChanged);
             _pvpSpectateToggle.onValueChanged.AddListener(OnTogglePvpSpectate);
 
             if (ScreepsAPI.IsConnected)
@@ -44,7 +46,7 @@ namespace Screeps3D.Rooms
 
         private void OnTogglePvpSpectate(bool isOn)
         {
-            PlayerPrefs.SetInt(_prefsKey, isOn ? 1 : 0);
+            PlayerPrefs.SetInt(_prefPvpSpectateToggle, isOn ? 1 : 0);
 
             if (isOn)
             {
@@ -171,6 +173,20 @@ namespace Screeps3D.Rooms
             }
              * */
         }
+        public void OnSelectedShardChanged(int shardIndex)
+        {
+            PlayerPrefs.SetInt(GetServerPrefKey(_prefShard), shardIndex);
+        }
+
+        public void OnSelectedRoomChanged(string roomName)
+        {
+            if (!string.IsNullOrEmpty(roomName))
+            {
+                PlayerPrefs.SetString(GetServerPrefKey(_prefRoom), roomName);
+            }
+            
+            this.GetAndChooseRoom(roomName);
+        }
 
         public void GetAndChooseRoom(string roomName)
         {
@@ -187,6 +203,8 @@ namespace Screeps3D.Rooms
         private void InitializeChooser(string str)
         {
             var obj = new JSONObject(str);
+            int? defaultShardIndex = null;
+            string defaultRoom = null;
 
             var shardObj = obj["shards"];
             if (shardObj != null)
@@ -194,17 +212,21 @@ namespace Screeps3D.Rooms
                 _shardInput.gameObject.SetActive(true);
 
                 _shards.Clear();
-                var count = 0;
-                foreach (var shardName in shardObj.keys)
+                var shardIndex = 0;
+                var shardNames = shardObj.keys;
+                foreach (var shardName in shardNames)
                 {
                     _shards.Add(shardName);
                     var roomList = shardObj[shardName].list;
                     if (roomList.Count > 0 && _roomInput.text.Length == 0)
                     {
-                        _shardInput.value = count;
-                        _roomInput.text = roomList[0].str;
+
+                        defaultShardIndex = shardIndex;
+                        defaultRoom = roomList[0].str;
+                        
                     }
-                    count++;
+
+                    shardIndex++;
                 }
             }
             else
@@ -216,24 +238,36 @@ namespace Screeps3D.Rooms
 
                 var roomObj = obj["rooms"];
                 if (roomObj != null && roomObj.list.Count > 0)
-                    _roomInput.text = roomObj.list[0].str;
+                {
+                    defaultRoom = roomObj.list[0].str;
+                }
             }
 
-            _shardInput.options.Clear();
-            foreach (var shardName in _shards)
-            {
-                _shardInput.options.Add(new TMP_Dropdown.OptionData(shardName));
-            }
+            _shardInput.ClearOptions();
+            _shardInput.AddOptions(_shards);
+
+            var savedShard = PlayerPrefs.GetInt(GetServerPrefKey(_prefShard), -1);
+            var savedRoom = PlayerPrefs.GetString(GetServerPrefKey(_prefRoom));
+            _roomInput.text = !string.IsNullOrEmpty(savedRoom) ? savedRoom : defaultRoom;
+            _shardInput.value = savedShard != -1 ? savedShard : defaultShardIndex.HasValue ? defaultShardIndex.Value : 0;
 
             if (!string.IsNullOrEmpty(_roomInput.text))
             {
-                GetAndChooseRoom(_roomInput.text);
+                OnSelectedRoomChanged(_roomInput.text);
             }
 
             if (_pvpSpectateToggle.isOn)
             {
                 this.OnTogglePvpSpectate(_pvpSpectateToggle.isOn);
             }
+        }
+
+        private string GetServerPrefKey(string prefKey)
+        {
+            var hostname = ScreepsAPI.Cache.Address.HostName;
+            var port = ScreepsAPI.Cache.Address.Port;
+
+            return string.Format("{0} {1} {2}", hostname, port, prefKey);
         }
     }
 }
