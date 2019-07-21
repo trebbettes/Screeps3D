@@ -43,6 +43,9 @@ namespace Screeps3D.Effects
                 var point = (_endPos - _startPos) * factor + _startPos;
                 _label.transform.position = point;
                 _time += Time.unscaledDeltaTime;
+
+                _label.transform.rotation = Camera.main.transform.rotation;
+
                 yield return null;
             }
             
