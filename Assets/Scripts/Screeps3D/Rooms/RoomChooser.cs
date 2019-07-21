@@ -204,7 +204,7 @@ namespace Screeps3D.Rooms
         {
             var obj = new JSONObject(str);
             int? defaultShardIndex = null;
-            string defaultRoom = null;
+            string defaultRoom = ""; // TODO: get starter room endpoint if we have no rooms
 
             var shardObj = obj["shards"];
             if (shardObj != null)
