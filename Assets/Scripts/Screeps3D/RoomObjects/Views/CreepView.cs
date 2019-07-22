@@ -53,7 +53,9 @@ namespace Screeps3D.RoomObjects.Views
             if (posDelta.sqrMagnitude > .01)
             {
                 _posTarget = RoomObject.Position;
-            } 
+            }
+
+            ScaleCreepSize();
         }
 
         private void Update()
