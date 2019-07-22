@@ -80,11 +80,6 @@ namespace Screeps3D.RoomObjects
                 Initialized = true;
             }
 
-            if (!string.IsNullOrEmpty(Saying))
-            {
-                EffectsUtility.Speech(this, Saying);
-            }
-
             var deathData = data["deathTime"];
             if (deathData != null)
             {

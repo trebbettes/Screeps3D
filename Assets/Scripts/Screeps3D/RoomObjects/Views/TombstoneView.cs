@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Screeps3D.Effects;
+using UnityEngine;
 
 namespace Screeps3D.RoomObjects.Views
 {
@@ -20,6 +21,12 @@ namespace Screeps3D.RoomObjects.Views
 
             _rotTarget = transform.rotation;
             _posTarget = roomObject.Position;
+
+            // should be ObjectViewComponent so Load is run everytime?
+            if (!string.IsNullOrEmpty(_tombstone.Saying))
+            {
+                EffectsUtility.Speech(_tombstone, _tombstone.Saying);
+            }
         }
 
         internal override void Delta(JSONObject data)
