@@ -19,6 +19,7 @@ namespace Screeps_API
         private void Start()
         {
             ScreepsAPI.OnConnectionStatusChange += OnConnectionStatusChange;
+            consoleClientAbuses.Add(new StyleTags());
             consoleClientAbuses.Add(new FontColor());
             consoleClientAbuses.Add(new RoomLink());
         }
@@ -33,6 +34,7 @@ namespace Screeps_API
             if (connected)
             {
                 ScreepsAPI.Socket.Subscribe(string.Format("user:{0}/console", ScreepsAPI.Me.UserId), RecieveData);
+                // TODO: subscribe to server-message to display server messages in console
             }
         }
 
