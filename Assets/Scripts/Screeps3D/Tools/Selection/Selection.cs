@@ -90,6 +90,12 @@ namespace Screeps3D.Tools.Selection
 
         public void ToggleSelection(RoomObject obj)
         {
+            if (obj == null)
+            {
+                Debug.LogError("RoomObject is null the objectview is missing a reference to RoomObject, perhaps Load() has not yet been run?");
+                return;
+            }
+
             if (_selections.ContainsKey(obj.Id))
             {
                 DeselectObject(obj);
