@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using Common;
 using Screeps3D;
@@ -17,7 +18,7 @@ namespace Screeps_API
         {
             // Debug.Log(string.Format("HTTP: attempting {0} to {1}", requestMethod, path));
             UnityWebRequest www;
-            var fullPath = ScreepsAPI.Cache.Address.Http(path);
+            var fullPath = path.StartsWith("api") ? ScreepsAPI.Cache.Address.Http(path) : path;
             if (requestMethod == UnityWebRequest.kHttpVerbGET)
             {
                 if (body != null)
@@ -28,8 +29,12 @@ namespace Screeps_API
             } else if (requestMethod == UnityWebRequest.kHttpVerbPOST)
             {
                 www = new UnityWebRequest(fullPath, "POST");
-                byte[] bodyRaw = Encoding.UTF8.GetBytes(body.ToString());
-                www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                if (body != null)
+                {
+                    byte[] bodyRaw = Encoding.UTF8.GetBytes(body.ToString());
+                    www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+                }
+                
                 www.downloadHandler = new DownloadHandlerBuffer();
                 www.SetRequestHeader("Content-Type", "application/json");
             } else
@@ -135,6 +140,11 @@ namespace Screeps_API
             var body = new RequestBody();
             body.AddField("id", userId);
             Request("GET", "/api/user/rooms", body, onSuccess);
+        }
+
+        public void GetServerList(Action<string> onSuccess)
+        {
+            Request("POST", "https://screeps.com/api/servers/list", onSuccess: onSuccess);
         }
     }
 }

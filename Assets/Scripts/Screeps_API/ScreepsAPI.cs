@@ -9,7 +9,7 @@ namespace Screeps_API
     [RequireComponent(typeof(ScreepsSocket))]
     public class ScreepsAPI : BaseSingleton<ScreepsAPI>
     {
-        public static ServerCache Cache { get; private set; }
+        public static ServerCache Cache { get; /*private*/ set; }
         public static ScreepsHTTP Http { get; private set; }
         public static ScreepsSocket Socket { get; private set; }
         public static ScreepsUser Me { get; private set; }

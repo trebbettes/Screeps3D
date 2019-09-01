@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Common;
 using Screeps3D;
 using TMPro;
@@ -68,7 +69,9 @@ namespace Screeps_API
             var options = new List<TMP_Dropdown.OptionData>();
             foreach (var server in _servers)
             {
-                options.Add(new TMP_Dropdown.OptionData(server.Address.HostName));
+                options.Add(new TMP_Dropdown.OptionData(string.Format("{0} {1}", 
+                    server.Name ?? server.Address.HostName, 
+                    server.LikeCount > 0 ? string.Format("({0} Likes)",server.LikeCount) : string.Empty)));
             }
             _serverSelect.AddOptions(options);
             _serverSelect.value = _serverIndex;
@@ -124,15 +127,74 @@ namespace Screeps_API
 
         private void LoadCache()
         {
-            _servers = SaveManager.Load<CacheList>(_savePath);
+            _servers = SaveManager.Load<CacheList>(_savePath); //TODO: we are loading cached terrain for ALL servers? seems like something that should be loaded when connecting to the selected server
             if (_servers == null)
             {
                 _servers = new CacheList();
                 var publicServer = new ServerCache();
+                publicServer.Name = "Screeps.com";
                 publicServer.Address.HostName = "Screeps.com";
                 publicServer.Address.Ssl = true;
                 _servers.Add(publicServer);
             }
+
+            var sortedCache = new CacheList();
+            sortedCache.AddRange(_servers.OrderByDescending(s => s.Address.HostName == "Screeps.com").ThenBy(s => s.Address.HostName));
+            _servers = sortedCache;
+            
+
+            // Fetch servers from other sources
+            // If we just append theese servers to the list, when the server list is saved, they will suddenly appear twice, 
+            // but we still want to cache the server terrain for next time we connect.
+            Action<string> serverCallback = str =>
+            {
+                var obj = new JSONObject(str);
+                var servers = obj["servers"].list;
+
+                var cachedOfficialServers = new List<ServerCache>();
+                foreach (var server in servers)
+                {
+                    var name = server["name"].str;
+                    var status = server["status"].str;
+                    var likeCount = Convert.ToInt32(server["likeCount"].n);
+
+                    var settings = server["settings"];
+                    var host = settings["host"].str;
+                    var port = settings["port"].str;
+
+                    var cachedServer = _servers.SingleOrDefault(cache => cache.Address.HostName == host);
+                    if (cachedServer == null)
+                    {
+                        cachedServer = new ServerCache();
+                        cachedServer.Address.HostName = host;
+                        cachedServer.Address.Port = port;
+                        //officialServerListServer.Address.Ssl = true; // not sure how to determine if ssl or not
+                        cachedOfficialServers.Add(cachedServer);
+                    }
+
+                    cachedServer.Name = name;
+                    cachedServer.LikeCount = likeCount;
+                }
+
+                _servers.AddRange(cachedOfficialServers.OrderByDescending(s => s.LikeCount));
+
+                // TODO: likes
+                UpdateServerDropdown();
+            };
+            var officialServer = _servers.SingleOrDefault(s => s.Address.HostName == "Screeps.com");
+            if (officialServer != null && !string.IsNullOrEmpty(officialServer.Credentials.Token))
+            {
+                ScreepsAPI.Cache = officialServer; // Allow calling api endpoint without having connected.
+                ScreepsAPI.Http.GetServerList(serverCallback);
+            }
+
+            
+
+            // TODO: Official Server List
+
+            // TODO: SS3 Unified Credentials File .yml
+            // TODO: SS3 Unified Credentials File .ini
+
         }
 
         private void OnClick()
