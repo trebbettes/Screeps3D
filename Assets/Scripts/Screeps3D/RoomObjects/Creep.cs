@@ -141,7 +141,7 @@ namespace Screeps3D.RoomObjects
             AssignRotation();
             
             if (Actions.ContainsKey("say") && !Actions["say"].IsNull)
-                EffectsUtility.Speech(this, Actions["say"]["message"].str);
+                EffectsUtility.Speech(this, Actions["say"]["message"].str, Actions["say"]["isPublic"].b);
             
             if (View != null)
                 View.Delta(delta);

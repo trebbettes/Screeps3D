@@ -20,11 +20,11 @@ namespace Screeps3D.Effects
             effect.Load(startPos, endPos, color);
         }
 
-        public static void Speech(RoomObject creep, string message)
+        public static void Speech(RoomObject creep, string message, bool isPublic = true)
         {
             var go = PoolLoader.Load(SpeechEffect.PATH);
             var effect = go.GetComponent<SpeechEffect>();
-            effect.Load(creep, message);
+            effect.Load(creep, message, isPublic);
         }
 
         /// <summary>

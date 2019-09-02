@@ -17,7 +17,7 @@ namespace Screeps3D.Effects
         private Vector3 _endPos;
         private Vector3 _startPos;
 
-        public void Load(RoomObject creep, string message)
+        public void Load(RoomObject creep, string message, bool isPublic = true)
         {
             if (creep.View == null) return;
             
@@ -27,6 +27,7 @@ namespace Screeps3D.Effects
             _label.enabled = false;
             _time = 0f;
             _label.text = message;
+            _label.alpha = isPublic ? 1f : 0.5f;
             StartCoroutine(Display());
         }
 
