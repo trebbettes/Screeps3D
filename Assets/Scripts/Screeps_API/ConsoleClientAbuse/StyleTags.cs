@@ -36,6 +36,13 @@ namespace Assets.Scripts.Screeps_API.ConsoleClientAbuse
                     {
                         case "color":
                             fontColor = cssValue;
+
+                            if (!fontColor.StartsWith("#"))
+                            {
+                                var hexColor = ColorToHex.Parse(cssValue);
+                                fontColor = hexColor != null ? hexColor.Hex : cssValue;
+                            }
+
                             break;
                         case "background-color":
                             backgroundColor = cssValue;
