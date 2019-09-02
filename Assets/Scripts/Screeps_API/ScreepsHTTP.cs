@@ -18,7 +18,7 @@ namespace Screeps_API
         {
             // Debug.Log(string.Format("HTTP: attempting {0} to {1}", requestMethod, path));
             UnityWebRequest www;
-            var fullPath = path.StartsWith("api") ? ScreepsAPI.Cache.Address.Http(path) : path;
+            var fullPath = path.StartsWith("/api") ? ScreepsAPI.Cache.Address.Http(path) : path;
             if (requestMethod == UnityWebRequest.kHttpVerbGET)
             {
                 if (body != null)
