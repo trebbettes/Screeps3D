@@ -131,11 +131,14 @@ namespace Screeps_API
 
         private void OnServerChange(int serverIndex)
         {
-            // deselect previous server
-            var previousServer = _servers[_serverIndex];
-            if (previousServer != null)
+            if (_serverIndex != -1)
             {
-                previousServer.Selected = false;
+                // deselect previous server
+                var previousServer = _servers[_serverIndex];
+                if (previousServer != null)
+                {
+                    previousServer.Selected = false;
+                }
             }
 
             // select new server
@@ -156,6 +159,16 @@ namespace Screeps_API
 
         private void UpdateFieldVisibility()
         {
+            if (_serverIndex == -1)
+            {
+                _username.gameObject.SetActive(false);
+                _password.gameObject.SetActive(false);
+                _token.gameObject.SetActive(false);
+
+                _removeServer.gameObject.SetActive(false);
+                return;
+            }
+
             var selectedServer = _servers[_serverIndex];
             var isPublic = selectedServer.MMO;
 
@@ -170,11 +183,15 @@ namespace Screeps_API
 
             _removeServer.gameObject.SetActive(!selectedServer.MMO);
 
-
         }
 
         private void UpdateFieldContent()
         {
+            if (_serverIndex == -1)
+            {
+                return;
+            }
+
             var cache = _servers[_serverIndex];
             _port.text = cache.Address.Port ?? "";
             _username.text = cache.Credentials.Email ?? "";
@@ -188,7 +205,7 @@ namespace Screeps_API
         {
             //SaveManager.Save(_savePath, new CacheList()); // clear servers
 
-            _servers = SaveManager.Load<CacheList>(_savePath);
+            _servers = SaveManager.Load<CacheList>(_savePath) ?? new CacheList();
 
 
             // Get status of servers, should probably be async for each server and a coroutine.
