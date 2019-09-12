@@ -32,7 +32,13 @@ namespace Screeps_API
             var protocol = ScreepsAPI.Cache.Address.Ssl ? "wss" : "ws";
             var port = ScreepsAPI.Cache.MMO ? "" : string.Format(":{0}", ScreepsAPI.Cache.Address.Ssl ? "443" : ScreepsAPI.Cache.Address.Port);
 
-            var url = string.Format("{0}://{1}{2}{3}/socket/websocket", protocol, ScreepsAPI.Cache.Address.HostName, port, ScreepsAPI.Cache.Address.Path);
+            var path = ScreepsAPI.Cache.Address.Path;
+            if (path.StartsWith("/") && path.EndsWith("/"))
+            {
+                path = path.Substring(1);
+            }
+
+            var url = string.Format("{0}://{1}{2}{3}/socket/websocket", protocol, ScreepsAPI.Cache.Address.HostName, port, path);
             Debug.Log(url);
 
             Socket = new WebSocket(url);
