@@ -13,10 +13,10 @@ namespace Screeps_API
     {
         public string Token { get; private set; }
 
-        public void Request(string requestMethod, string path, RequestBody body = null,
-            Action<string> onSuccess = null, Action onError = null)
+        public IEnumerator<UnityWebRequestAsyncOperation> Request(string requestMethod, string path, RequestBody body = null,
+            Action<string> onSuccess = null, Action onError = null, int timeout = 0, bool skipAuth = false)
         {
-            // Debug.Log(string.Format("HTTP: attempting {0} to {1}", requestMethod, path));
+            //Debug.Log(string.Format("HTTP: attempting {0} to {1}", requestMethod, path));
             UnityWebRequest www;
             var fullPath = path.StartsWith("/api") ? ScreepsAPI.Cache.Address.Http(path) : path;
             if (requestMethod == UnityWebRequest.kHttpVerbGET)
@@ -39,8 +39,9 @@ namespace Screeps_API
                 www.SetRequestHeader("Content-Type", "application/json");
             } else
             {
-                Debug.Log(string.Format("HTTP: request method {0} unrecognized", requestMethod));
-                return;
+                var message = string.Format("HTTP: request method {0} unrecognized", requestMethod);
+                Debug.Log(message);
+                throw new Exception(message);
             }
 
             Action<UnityWebRequest> onComplete = (UnityWebRequest outcome) =>
@@ -56,13 +57,20 @@ namespace Screeps_API
                     } 
                     else
                     {
-                        Auth((reply) =>
+                        if (skipAuth)
                         {
                             Request(requestMethod, path, body, onSuccess);
-                        }, () =>
+                        }
+                        else
                         {
-                            ScreepsAPI.Instance.AuthFailure();
-                        });
+                            Auth((reply) =>
+                            {
+                                Request(requestMethod, path, body, onSuccess);
+                            }, () =>
+                            {
+                                ScreepsAPI.Instance.AuthFailure();
+                            });
+                        }
                     }
                 } else
                 {
@@ -82,17 +90,23 @@ namespace Screeps_API
                 }
             };
 
-            StartCoroutine(SendRequest(www, onComplete));
+            www.timeout = timeout;
+
+            var request = SendRequest(www, onComplete);
+
+            StartCoroutine(request);
+
+            return request;
         }
 
-        private IEnumerator SendRequest(UnityWebRequest www, Action<UnityWebRequest> onComplete)
+        private IEnumerator<UnityWebRequestAsyncOperation> SendRequest(UnityWebRequest www, Action<UnityWebRequest> onComplete)
         {
             if (Token != null)
             {
                 www.SetRequestHeader("X-Token", Token);
                 www.SetRequestHeader("X-Username", Token);
             }
-            yield return www.Send();
+            yield return www.SendWebRequest();
             onComplete(www);
         }
 
@@ -142,9 +156,15 @@ namespace Screeps_API
             Request("GET", "/api/user/rooms", body, onSuccess);
         }
 
-        public void GetServerList(Action<string> onSuccess)
+        public void GetServerList(Action<string> onSuccess, Action onError)
         {
-            Request("POST", "https://screeps.com/api/servers/list", onSuccess: onSuccess);
+            Request("POST", "https://screeps.com/api/servers/list", onSuccess: onSuccess, onError: onError, skipAuth: true);
+        }
+
+        public IEnumerator<UnityWebRequestAsyncOperation> GetVersion(Action<string> onSuccess, Action onError)
+        {
+            // this call does not require authentication, and thus we only need the hostname
+            return Request("GET", "/api/version", onSuccess: onSuccess, onError: onError, timeout: 2, skipAuth: true);
         }
     }
 }
