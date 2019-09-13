@@ -26,7 +26,8 @@ Here are the major areas that we would like to tackle next:
 * Visualize nukes flying from source to target room (#58)
   
 
-## Installation
+# Installation
+Want to try the client?  
 Download a release from the [release page](https://github.com/thmsndk/Screeps3D/releases)
 
 ## Contributing
@@ -34,7 +35,7 @@ The Project is built using Unity and C# so the following software is required to
 
 ### Software Requirements
 * Visual Studio 2019 Community Edition
-* Unity 2019.1.8f1
+* Unity 2019.2.5f1
 * Blender 2.79
   * If no models are showing up, you need to install blender, .blend files are used in unity
   * Models might take a while before showing up after installing blender, it has to "reimport" the .blend files before they render.
@@ -44,48 +45,6 @@ After installation you can open the project in unity, and in the asset menu you 
 
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. If there is an existing issue you would like to tackle, please mention that in the issue to allow others to collab with you :)
-
-
----
-Things thmsn came up with initially while streaming botarena
-
-### ideas
-* Crumble walls based on hitpoints
-* Render alliances
-  * Render your "friends" in another color than red
-* ~Make resource/material nodes larger / smaller based on resource amount available~
-* ~color code material nodes based on the type of material~
-* minimap
-
-### stuff found when rendering BotArena
- * can we implement a spectator mode? #39
-   * yes xD, currently shuffles random rooms with pvp if you toggle PVP Spectate on
-   * ideas
-     * follow a creep? perhaps random?
-     * different camera angels
- * render safemode
- * prevent certain objects from being selected, 
-   * selecting creeps and having roads selected sucks
- 
- #### bugs
-* ~creeps not despawning~
-* ~tombstones not showing~
-* ~dropped energy not rendered #36~ 
-* attacks are rendered too far (blue beam)
-* room update / connection is lost, and rooms looses all data
-  * Possibly because of this
-```
-["err@room:E3S3","subscribe limit reached"]
- 
-(Filename: C:\buildslave\unity\build\Runtime/Export/Debug.bindings.h Line: 45)
-
-recieved null data from server
- 
-(Filename: C:\buildslave\unity\build\Runtime/Export/Debug.bindings.h Line: 45)
-```
-* http error stays center of screen (Locked)
-* ~Creeps remain dorment after their TTL becomes negative~
-* CreepView _body.material.mainTexture = _creep.Owner.Badge; Owner is null
 
 
 
