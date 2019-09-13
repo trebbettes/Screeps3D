@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Resources;
 using System.Text;
-using Svg;
+//using Svg;
+using Unity.VectorGraphics;
 using UnityEngine;
 // using Svg;
 
@@ -68,23 +69,58 @@ namespace Screeps_API
 
         private Texture2D Texturize(string xml)
         {
-            var byteArray = Encoding.ASCII.GetBytes(xml);
-            using (var stream = new MemoryStream(byteArray))
+            try
             {
-                var svgDocument = SvgDocument.Open(stream);
-                var bitmap = svgDocument.Draw();
-                var texture = new Texture2D(bitmap.Width, bitmap.Height);
-                for (var x = 0; x < bitmap.Width; x++)
+                // for some reason the generated xml uses , for decimal in .net standard, I assume it is because the algorithms gets converted to strings
+                xml = xml.Replace(",", ".");
+
+                using (var reader = new StringReader(xml))
                 {
-                    for (var y = 0; y < bitmap.Height; y++)
+                    var sceneInfo = SVGParser.ImportSVG(reader);
+
+                    var geometry = VectorUtils.TessellateScene(sceneInfo.Scene, new VectorUtils.TessellationOptions
                     {
-                        var sysColor = bitmap.GetPixel(x, y);
-                        texture.SetPixel(x, y, new Color(sysColor.R / 255f, sysColor.G / 255f, sysColor.B / 255f));
-                    }
+                        // https://docs.unity3d.com/Packages/com.unity.vectorgraphics@1.0/manual/index.html
+                        // Theese options needs to be set, else it fails
+                        StepDistance = 10f,
+                        SamplingStepSize = 100f,
+                        MaxCordDeviation = 0.5f,
+                        MaxTanAngleDeviation = 0.1f
+                    });
+
+                    var sprite = VectorUtils.BuildSprite(geometry, 1, VectorUtils.Alignment.Center, Vector2.zero, 0);
+
+                    // var mat = new Material(Shader.Find("Unlit/VectorGradient"));
+                    var mat = new Material(Shader.Find("Unlit/Vector"));
+
+                    return VectorUtils.RenderSpriteToTexture2D(sprite, 100, 100, mat);
                 }
-                texture.Apply();
-                return texture;
             }
+            catch (Exception ex)
+            {
+                Debug.LogError("failed to generate badge for xml");
+                Debug.LogError(xml);
+                Debug.LogException(ex);
+
+                return GenerateInvader(Color.white);
+            }
+            //var byteArray = Encoding.ASCII.GetBytes(xml);
+            //using (var stream = new MemoryStream(byteArray))
+            //{
+            //    var svgDocument = SvgDocument.Open(stream);
+            //    var bitmap = svgDocument.Draw();
+            //    var texture = new Texture2D(bitmap.Width, bitmap.Height);
+            //    for (var x = 0; x < bitmap.Width; x++)
+            //    {
+            //        for (var y = 0; y < bitmap.Height; y++)
+            //        {
+            //            var sysColor = bitmap.GetPixel(x, y);
+            //            texture.SetPixel(x, y, new Color(sysColor.R / 255f, sysColor.G / 255f, sysColor.B / 255f));
+            //        }
+            //    }
+            //    texture.Apply();
+            //    return texture;
+            //}
             // return GenerateInvader(Color.white);
         }
 
@@ -109,7 +145,7 @@ namespace Screeps_API
                 "<svg width=\"{0}\" height=\"{1}\" viewBox=\"0 0 {2} {3}\" shape-rendering=\"geometricPrecision\">",
                 size, size, pathDefinitionSize, pathDefinitionSize));
             sb.Append(string.Format(
-                "\n\t<defs><clipPath id=\"#clip\"><circle cx=\"{0}\" cy=\"{1}\" r=\"{2}\" /></clipPath></defs>",
+                "\n\t<defs><clipPath id=\"clip\"><circle cx=\"{0}\" cy=\"{1}\" r=\"{2}\" /></clipPath></defs>",
                 center, center, pathDefinitionSize / 2));
             sb.Append(string.Format(
                 "\n\t<g transform=\"rotate({0} {1} {2})\">", rotation, center, center));
