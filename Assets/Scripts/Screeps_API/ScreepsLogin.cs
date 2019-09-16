@@ -252,6 +252,12 @@ namespace Screeps_API
                 //stuff.Current
             };
 
+            // query saved servers, should probably only query the ones where source == custom cause the providers will query the others
+            foreach (var server in _servers)
+            {
+                queryServerInfo(server);
+            }
+
             foreach (var provider in serverListProviders)
             {
                 provider.Load((IEnumerable<ServerCache> servers) =>
