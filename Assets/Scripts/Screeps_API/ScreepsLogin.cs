@@ -114,7 +114,9 @@ namespace Screeps_API
                 return;
 
             var server = new ServerCache();
+            // TODO: split/parse http url and port and assign properly e.g. http://screeps.reggaemuffin.me:21025
             server.Address.HostName = hostName;
+            server.Address.Port = "21025";
             _servers.Add(server);
             OnServerChange(_servers.IndexOf(server));
             UpdateServerList();
@@ -183,6 +185,15 @@ namespace Screeps_API
 
             _removeServer.gameObject.SetActive(!selectedServer.MMO);
 
+            if (!isPublic && (string.IsNullOrEmpty(selectedServer.Address.Port)|| editServer))
+            {
+                _port.gameObject.SetActive(true);
+            }
+            else
+            {
+                _port.gameObject.SetActive(false);
+            }
+
         }
 
         private void UpdateFieldContent()
@@ -193,7 +204,7 @@ namespace Screeps_API
             }
 
             var cache = _servers[_serverIndex];
-            _port.text = cache.Address.Port ?? "";
+            _port.text = cache.Address.Port ?? "21025";
             _username.text = cache.Credentials.Email ?? "";
             _token.text = cache.Credentials.Token ?? "";
             _password.text = cache.Credentials.Password ?? "";

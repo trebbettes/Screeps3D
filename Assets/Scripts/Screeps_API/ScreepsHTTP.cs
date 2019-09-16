@@ -166,5 +166,28 @@ namespace Screeps_API
             // this call does not require authentication, and thus we only need the hostname
             return Request("GET", "/api/version", onSuccess: onSuccess, onError: onError, timeout: 2, skipAuth: true);
         }
+
+        public IEnumerator<UnityWebRequestAsyncOperation> GetMapStats(List<string> rooms, string shard, string statName, Action<string> onSuccess, Action onError)
+        {
+            /*
+             https://github.com/screepers/node-screeps-api/blob/HEAD/docs/Endpoints.md
+             [POST] https://screeps.com/api/game/map-stats
+                post data: { rooms: [ <room name> ], statName: "..."}
+                statName can be "owner0", "claim0", or a stat (see the enumeration above) followed by an interval
+                if it is owner0 or claim0, there's no separate stat block in the response
+                response: { ok, stats: { <room name>: { status, novice, own: { user, level }, <stat>: [ { user, value } ] } }, users: { <user's _id>: { _id, username, badge: { type, color1, color2, color3, param, flip } } } }
+                status and novice are as per the room-status call
+                level can be 0 to indicate a reserved room
+                */
+
+            var body = new RequestBody();
+            var jsonRooms = JSONObject.Create(JSONObject.Type.ARRAY);
+            rooms.ForEach((room) => jsonRooms.Add(room));
+            body.AddField("rooms", jsonRooms);
+            body.AddField("statName", statName);
+            body.AddField("shard", shard);
+
+            return Request("POST", "/api/game/map-stats", body, onSuccess: onSuccess, onError: onError, skipAuth: true);
+        }
     }
 }
