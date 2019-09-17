@@ -93,7 +93,7 @@ namespace Screeps_API
                     // var mat = new Material(Shader.Find("Unlit/VectorGradient"));
                     var mat = new Material(Shader.Find("Unlit/Vector"));
 
-                    return VectorUtils.RenderSpriteToTexture2D(sprite, 100, 100, mat);
+                    return VectorUtils.RenderSpriteToTexture2D(sprite, 250, 250, mat);
                 }
             }
             catch (Exception ex)
