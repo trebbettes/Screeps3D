@@ -231,7 +231,7 @@ namespace WebSocketSharp
                 try
                 {
                     var sslStream = new SslStream(netStream, false, validationCallback);
-                    sslStream.AuthenticateAsClient(host,null, System.Security.Authentication.SslProtocols.Default, false);
+                    sslStream.AuthenticateAsClient(host,null, System.Security.Authentication.SslProtocols.Tls12, false);
 
                     return new WebSocketStream(sslStream);
                 }
