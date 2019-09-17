@@ -43,14 +43,11 @@ namespace Assets.Scripts.Screeps_API.ServerListProviders
 
                     serverList.Add(cachedServer);
 
-                    //if (cachedServer.Address.HostName.EndsWith(".screepspl.us"))
-                    //{
-                    //    // WebSocketSharp has issues connecting to SSL
-                    //    //cachedServer.Address.Ssl = true;
-                    //    //cachedServer.Address.Port = "443";
-                    //    cachedServer.Address.Ssl = false;
-                    //    cachedServer.Address.Port = port;
-                    //}
+                    if (cachedServer.Address.HostName.EndsWith(".screepspl.us"))
+                    {
+                        cachedServer.Address.Ssl = true;
+                        cachedServer.Address.Port = "443";
+                    }
                 }
 
                 callback(serverList);
