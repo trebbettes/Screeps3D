@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Assets.Scripts.Screeps_API.ServerListProviders;
 using Common;
 using Screeps3D;
@@ -108,15 +109,44 @@ namespace Screeps_API
             PlayerInput.Get("Server Hostname\n<size=12>example: 127.0.0.1</size>", OnSubmitServer);
         }
 
-        private void OnSubmitServer(string hostName)
+        private void OnSubmitServer(string input)
         {
-            if (hostName == null)
+            if (string.IsNullOrEmpty(input))
+            {
                 return;
+            }
 
             var server = new ServerCache();
-            // TODO: split/parse http url and port and assign properly e.g. http://screeps.reggaemuffin.me:21025
-            server.Address.HostName = hostName;
+            server.Address.HostName = input;
             server.Address.Port = "21025";
+
+            // split/parse http url and port and assign properly e.g. http://screeps.reggaemuffin.me:21025
+            var urlPattern = @"(?<protocol>http(?:s?))?(?:\:\/\/)?(?<hostname>(?:[\w]+\.)+[a-zA-Z]+)(?::(?<port>\d{1,5}))?";
+            var match = Regex.Match(input, urlPattern);
+
+            if (match.Success)
+            {
+                var protocol = match.Groups["protocol"].Value;
+                var hostName = match.Groups["hostname"].Value;
+                var port = match.Groups["port"].Value;
+
+                if (!string.IsNullOrEmpty(hostName))
+                {
+                    server.Address.HostName = hostName;
+                }
+
+                if (protocol.ToLowerInvariant() == "https" || port == "443")
+                {
+                    port = "443";
+                    server.Address.Ssl = true;
+                }
+
+                if (!string.IsNullOrEmpty(port))
+                {
+                    server.Address.Port = port;
+                }
+            }
+            
             _servers.Add(server);
             OnServerChange(_servers.IndexOf(server));
             UpdateServerList();
