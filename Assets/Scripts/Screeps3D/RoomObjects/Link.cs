@@ -19,23 +19,21 @@ namespace Screeps3D.RoomObjects
             "transferEnergy":null
         }
     }*/
-    public class Link : Structure, IEnergyObject, ICooldownObject, IActionObject
+    public class Link : StoreStructure, ICooldownObject, IActionObject//, IEnergyObject
     {
-        public float Energy { get; set; }
-        public float EnergyCapacity { get; set; }
         public Dictionary<string, JSONObject> Actions { get; set; }
         public float Cooldown { get; set; }
 
         internal Link()
         {
-            Actions = new Dictionary<string, JSONObject>(); 
+            Actions = new Dictionary<string, JSONObject>();
         }
 
         internal override void Unpack(JSONObject data, bool initial)
         {
             base.Unpack(data, initial);
 
-            UnpackUtility.Energy(this, data);
+            UnpackUtility.Store(this, data);
             UnpackUtility.Cooldown(this, data);
             UnpackUtility.ActionLog(this, data);
         }

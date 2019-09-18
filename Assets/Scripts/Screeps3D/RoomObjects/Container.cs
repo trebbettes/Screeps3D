@@ -16,21 +16,11 @@ namespace Screeps3D.RoomObjects
       "nextDecayTime": 8858
     }*/
 
-    public class Container : Structure, IStoreObject
+    public class Container : StoreStructure
     {
-        public Dictionary<string, float> Store { get; private set; }
-        public float StoreCapacity { get; set; }
-        public float TotalResources { get; set; }
-
-        internal Container()
-        {
-            Store = new Dictionary<string, float>();
-        }
-
         internal override void Unpack(JSONObject data, bool initial)
         {
             base.Unpack(data, initial);
-            UnpackUtility.Store(this, data);
         }
     }
 }

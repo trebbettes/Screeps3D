@@ -28,22 +28,11 @@ namespace Screeps3D.RoomObjects
         "UH":30,
         "OH":5,
     }*/
-    public class Terminal : Structure, IStoreObject
+    public class Terminal : StoreStructure
     {
-        public float StoreCapacity { get; set; }
-        public float TotalResources { get; set; }
-        public Dictionary<string, float> Store { get; private set; }
-
-        internal Terminal()
-        {
-            Store = new Dictionary<string, float>();
-        }
-
         internal override void Unpack(JSONObject data, bool initial)
         {
             base.Unpack(data, initial);
-            UnpackUtility.Store(this, data);
         }
-
     }
 }

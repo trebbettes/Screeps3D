@@ -33,23 +33,11 @@ namespace Screeps3D.RoomObjects
         "U":0
     }*/
 
-    public class Storage : Structure, IStoreObject
+    public class Storage : StoreStructure
     {
-        public float StoreCapacity { get; set; }
-        public float TotalResources { get; set; }
-        public Dictionary<string, float> Store { get; private set; }
-
-        internal Storage()
-        {
-            Store = new Dictionary<string, float>();
-        }
-
         internal override void Unpack(JSONObject data, bool initial)
         {
             base.Unpack(data, initial);
-
-            UnpackUtility.Store(this, data);
         }
-
     }
 }

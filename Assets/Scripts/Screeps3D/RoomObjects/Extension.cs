@@ -1,4 +1,6 @@
-﻿namespace Screeps3D.RoomObjects
+﻿using System.Collections.Generic;
+
+namespace Screeps3D.RoomObjects
 {
     /*{
       "_id": "5a0f286dc63095000155ec62",
@@ -15,16 +17,11 @@
       "off": false
     }*/
 
-    public class Extension : Structure, IEnergyObject
+    public class Extension : StoreStructure//, IEnergyObject
     {
-        public float Energy { get; set; }
-        public float EnergyCapacity { get; set; }
-
         internal override void Unpack(JSONObject data, bool initial)
         {
             base.Unpack(data, initial);
-
-            UnpackUtility.Energy(this, data);
         }
     }
 }

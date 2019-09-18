@@ -17,7 +17,7 @@ namespace Screeps3D.RoomObjects.Views
 
             if (_creep != null)
             {
-                _carry.SetActive(_creep.StoreCapacity > 0);
+                _carry.SetActive(_creep.TotalCapacity > 0);
             }
         }
 

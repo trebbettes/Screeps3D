@@ -106,7 +106,10 @@ namespace Screeps3D
             public const string Zynthium = "Z";
             public const string Catalyst = "X";
         }
-
+        // TODO: factory update? https://github.com/screeps/storage/blob/b045531aca745f0942293bd32e0bdb5813bc12e2/lib/db.js#L55
+        // https://github.com/screeps/common/blob/c5b52a2550444e6e30599c51eff3a601c983267e/lib/constants.js#L384-L387
+        // might need to verify that all resources are in fact present.
+        //   const depositTypes = [C.RESOURCE_SILICON, C.RESOURCE_METAL, C.RESOURCE_BIOMASS, C.RESOURCE_MIST];
         public static readonly HashSet<string> ResourcesAll = new HashSet<string>()
         {
             "energy", 

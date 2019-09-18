@@ -82,7 +82,8 @@ namespace Screeps3D.RoomObjects
     internal interface IStoreObject : IRoomObject
     {
         Dictionary<string, float> Store { get; }
-        float StoreCapacity { get; set; }
+        Dictionary<string, float> Capacity { get; }
+        float TotalCapacity { get; set; }
         float TotalResources { get; set; }
     }
 

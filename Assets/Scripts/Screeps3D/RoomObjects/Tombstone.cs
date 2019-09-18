@@ -30,7 +30,7 @@ namespace Screeps3D.RoomObjects
 
     */
 
-    internal class Tombstone : RoomObject, INamedObject, IOwnedObject, IDecay, IStoreObject
+    internal class Tombstone : StoreObject, INamedObject, IOwnedObject, IDecay
     {
         public string UserId { get; set; }
         public ScreepsUser Owner { get; set; }
@@ -43,17 +43,12 @@ namespace Screeps3D.RoomObjects
         public Vector3 PrevPosition { get; protected set; }
         public Vector3 BumpPosition { get; private set; }
         public Quaternion Rotation { get; private set; }
-        
-        public Dictionary<string, float> Store { get; private set; }
-        public float StoreCapacity { get; set; }
-        public float TotalResources { get; set; }
 
         public string Saying { get; set; }
 
         internal Tombstone()
         {
             //Body = new CreepBody();
-            Store = new Dictionary<string, float>();
         }
 
         internal override void Unpack(JSONObject data, bool initial)

@@ -60,7 +60,7 @@ namespace Screeps3D.RoomObjects
 
     // TODO TeleportView?
 
-    internal class Creep : RoomObject, INamedObject, IHitpointsObject, IOwnedObject, IStoreObject, IActionObject, IBump 
+    internal class Creep : StoreObject, INamedObject, IHitpointsObject, IOwnedObject, IActionObject, IBump//, IEnergyObject Do we want to visualize energy seperately from store?
     {
         public string UserId { get; set; }
         public ScreepsUser Owner { get; set; }
@@ -75,15 +75,11 @@ namespace Screeps3D.RoomObjects
         public Vector3 PrevPosition { get; protected set; }
         public Vector3 BumpPosition { get; private set; }
         public Quaternion Rotation { get; private set; }
-        public Dictionary<string, float> Store { get; private set; }
-        public float StoreCapacity { get; set; }
-        public float TotalResources { get; set; }
 
         internal Creep()
         {
             Body = new CreepBody();
             Actions = new Dictionary<string, JSONObject>();
-            Store = new Dictionary<string, float>();
         }
 
         internal override void Unpack(JSONObject data, bool initial)
@@ -97,7 +93,6 @@ namespace Screeps3D.RoomObjects
             }
             
             UnpackUtility.HitPoints(this, data);
-            UnpackUtility.Store(this, data);
             UnpackUtility.ActionLog(this, data);
 
             var ageData = data["ageTime"];

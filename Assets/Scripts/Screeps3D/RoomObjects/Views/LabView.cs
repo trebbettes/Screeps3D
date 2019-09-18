@@ -35,8 +35,10 @@ namespace Screeps3D.RoomObjects.Views
 
         private void UpdateDisplays()
         {
-            _mineral.SetVisibility(_lab.ResourceAmount / 3000);
-            _energy.SetVisibility(_lab.Energy / _lab.EnergyCapacity);
+            _mineral.SetVisibility(_lab.ResourceAmount / _lab.ResourceCapacity /*3000*/);
+            var energy = _lab.Store.ContainsKey(Constants.TypeResource) ? _lab.Store[Constants.TypeResource] : 0f;
+            var energyCapacity = _lab.Capacity.ContainsKey(Constants.TypeResource) ? _lab.Capacity[Constants.TypeResource] : 0f;
+            _energy.SetVisibility(energy / energyCapacity);
             
             
             var action = _lab.Actions.FirstOrDefault(c => !c.Value.IsNull);

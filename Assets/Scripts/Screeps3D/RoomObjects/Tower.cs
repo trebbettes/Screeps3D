@@ -21,26 +21,20 @@ namespace Screeps3D.RoomObjects
         }
     }*/
 
-    public class Tower : Structure, IEnergyObject, IActionObject
+    public class Tower : StoreStructure/*, IEnergyObject*/, IActionObject
     {
-        public float Energy { get; set; }
-        public float EnergyCapacity { get; set; }
         public Dictionary<string, JSONObject> Actions { get; set; }
-
 
         internal Tower()
         {
-            Actions = new Dictionary<string, JSONObject>(); 
+            Actions = new Dictionary<string, JSONObject>();
         }
         
         internal override void Unpack(JSONObject data, bool initial)
         {
             base.Unpack(data, initial);
 
-            UnpackUtility.Energy(this, data);
             UnpackUtility.ActionLog(this, data);
         }
-        
     }
-    
 }

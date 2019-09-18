@@ -1,4 +1,6 @@
-﻿namespace Screeps3D.RoomObjects
+﻿using System.Collections.Generic;
+
+namespace Screeps3D.RoomObjects
 {
     /*{
         "_id":"594fd4a759b455ab3f6aa147",
@@ -15,10 +17,8 @@
         "hits":5000,
         "hitsMax":5000
     }*/
-    public class PowerSpawn : Structure, IEnergyObject, IResourceObject
+    public class PowerSpawn : StoreStructure, IResourceObject//, IEnergyObject
     {
-        public float Energy { get; set; }
-        public float EnergyCapacity { get; set; }
         public float ResourceAmount { get; set; }
         public float ResourceCapacity { get; set; }
         public string ResourceType { get; set; }
@@ -30,21 +30,53 @@
         
         internal override void Unpack(JSONObject data, bool initial)
         {
+            // Convert pre-store update to post-store update
+            if (!data.HasField("store") && data.keys.Count > 0)
+            {
+                var store = new JSONObject();
+                data.AddField("store", store);
+
+                var storeCapacityResource = new JSONObject();
+                data.AddField("storeCapacityResource", store);
+
+                var energyCapData = data["energyCapacity"];
+                if (energyCapData)
+                {
+                    if (energyCapData != null)
+                    {
+                        storeCapacityResource.AddField(Constants.TypeResource, energyCapData.n);
+                    }
+                }
+
+                var energyData = data["energy"];
+                if (energyData != null)
+                {
+                    if (energyData != null)
+                    {
+                        store.AddField(Constants.TypeResource, energyData.n);
+                    }
+                }
+
+                var minAmountData = data["power"];
+
+                var minCapacityData = data["powerCapacity"];
+
+                if (minAmountData != null)
+                {
+                    store.AddField(ResourceType, minAmountData.n);
+                }
+
+                if (minCapacityData != null)
+                {
+                    storeCapacityResource.AddField(ResourceType, minCapacityData.n);
+                }
+
+            }
+
             base.Unpack(data, initial);
 
-            UnpackUtility.Energy(this, data);
-
-            var minAmountData = data["power"];
-            if (minAmountData != null)
-            {
-                ResourceAmount = minAmountData.n;
-            }
-            
-            var minCapacityData = data["powerCapacity"];
-            if (minCapacityData != null)
-            {
-                ResourceCapacity = minCapacityData.n;
-            }
+            ResourceCapacity = this.Capacity.ContainsKey(ResourceType) ? this.Capacity[ResourceType] : 0;
+            ResourceAmount = this.Store.ContainsKey(ResourceType) ? this.Store[ResourceType] : 0;
         }
     }
 }

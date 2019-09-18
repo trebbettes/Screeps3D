@@ -1,4 +1,6 @@
-﻿namespace Screeps3D.RoomObjects
+﻿using System.Collections.Generic;
+
+namespace Screeps3D.RoomObjects
 {
     /*{
       "_id": "5a0da460ab17fd00012bf0e9",
@@ -21,20 +23,15 @@
       "off": false
     }*/
 
-    public class Spawn : Structure, IEnergyObject
+    public class Spawn : StoreStructure//, IEnergyObject
     {
-        public float Energy { get; set; }
-        public float EnergyCapacity { get; set; }
         public string SpawningName { get; set; }
         public float SpawningNeedTime { get; set; }
         public float SpawningRemainingTime { get; set; }
 
-
         internal override void Unpack(JSONObject data, bool initial)
         {
             base.Unpack(data, initial);
-
-            UnpackUtility.Energy(this, data);
 
             if (!data.HasField("spawning"))
             {
@@ -48,7 +45,7 @@
 
             if (spawningData.HasField("needTime"))
                 SpawningNeedTime = spawningData["needTime"].n;
-            
+
             if (spawningData.HasField("remainingTime"))
                 SpawningRemainingTime = spawningData["remainingTime"].n;
         }
