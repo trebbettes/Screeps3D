@@ -409,7 +409,7 @@ namespace Screeps3D.Rooms
 
                 callback(ret, result["users"]);
 
-            }, () => { });
+            });
         }
     }
 }

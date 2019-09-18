@@ -13,6 +13,17 @@ namespace Screeps_API
     {
         public string Token { get; private set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="requestMethod"></param>
+        /// <param name="path"></param>
+        /// <param name="body"></param>
+        /// <param name="onSuccess"></param>
+        /// <param name="onError">If you sbuscribe to onError, the request will no longer re-auth and call the endpoint again, you will be responsible for doing that.</param>
+        /// <param name="timeout"></param>
+        /// <param name="skipAuth"></param>
+        /// <returns></returns>
         public IEnumerator<UnityWebRequestAsyncOperation> Request(string requestMethod, string path, RequestBody body = null,
             Action<string> onSuccess = null, Action onError = null, int timeout = 0, bool skipAuth = false)
         {
@@ -167,7 +178,7 @@ namespace Screeps_API
             return Request("GET", "/api/version", onSuccess: onSuccess, onError: onError, timeout: 2, skipAuth: true);
         }
 
-        public IEnumerator<UnityWebRequestAsyncOperation> GetMapStats(List<string> rooms, string shard, string statName, Action<string> onSuccess, Action onError)
+        public IEnumerator<UnityWebRequestAsyncOperation> GetMapStats(List<string> rooms, string shard, string statName, Action<string> onSuccess)
         {
             /*
              https://github.com/screepers/node-screeps-api/blob/HEAD/docs/Endpoints.md
@@ -187,7 +198,7 @@ namespace Screeps_API
             body.AddField("statName", statName);
             body.AddField("shard", shard);
 
-            return Request("POST", "/api/game/map-stats", body, onSuccess: onSuccess, onError: onError, skipAuth: true);
+            return Request("POST", "/api/game/map-stats", body, onSuccess: onSuccess);
         }
     }
 }
