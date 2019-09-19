@@ -128,7 +128,7 @@ namespace Screeps3D.Rooms
                         //"level": 0
 
                         //        },
-                        var ownedRooms = jsonRooms.Where(r => r.HasField("own"));
+                        var ownedRooms = jsonRooms.Where(r => r.HasField("own") && r["own"].HasField("level") && r["own"]["level"].n > 0);
                         var random = new System.Random();
                         var room = ownedRooms.ElementAt(random.Next(ownedRooms.Count()));
                         var user = jsonUsers[room["own"]["user"].str];
