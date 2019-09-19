@@ -23,6 +23,12 @@ namespace Common
             set { Instance._targetRotation = value; }
         }
 
+        public static Quaternion PivotRotation
+        {
+            get { return Instance._pivot.rotation; }
+            set { Instance._pivot.rotation = value; }
+        }
+
         public static Vector3 Position
         {
             get { return Instance._targetPosition; }
@@ -172,6 +178,17 @@ namespace Common
 
             _targetRotation.y += Input.GetAxis("Mouse X") * 5;
             _targetRotation.x -= Input.GetAxis("Mouse Y") * 5;
+        }
+
+        public void SetTargetRotation(Vector2 rotation)
+        {
+            _targetRotation.y += rotation.x;
+            _targetRotation.x -= rotation.y;
+        }
+
+        public void SetTargetZoom(float targetZoom)
+        {
+            _targetZoom = Mathf.Clamp(targetZoom, _minZoom, _maxZoom);
         }
     }
 }

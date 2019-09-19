@@ -14,6 +14,11 @@ namespace Common
         public static bool Control { get; private set; }
         public static bool Alt { get; private set; }
 
+        /// <summary>
+        /// A timestamp since the start of the game
+        /// </summary>
+        public static float LastAction { get; private set; }
+
         private bool _isDragOriginUI;
         private Vector3 _dragOrigin;
         private bool _isMouseDown;
@@ -23,13 +28,22 @@ namespace Common
         {
             if (!EventSystem.current)
                 throw new Exception("InputMonitor expecting an EventSystem in the scene");
-            
-            IsDragging = CheckDragging(); 
+
+            IsDragging = CheckDragging();
             InputFieldActive = CheckInput();
             OverUI = CheckOverUI();
 
             MonitorModifiers();
             MonitorClick();
+            MonitorKeypresses();
+        }
+
+        private void MonitorKeypresses()
+        {
+            if (Input.anyKey)
+            {
+                SetLastActionTimeStamp();
+            }
         }
 
         private void MonitorModifiers()
@@ -69,14 +83,22 @@ namespace Common
         {
             if (Input.GetMouseButtonDown(0))
             {
+                SetLastActionTimeStamp();
                 _dragOrigin = Input.mousePosition;
                 _isMouseDown = true;
                 _isDragOriginUI = EventSystem.current.IsPointerOverGameObject();
             }
+
             if (Input.GetMouseButtonUp(0))
             {
+                SetLastActionTimeStamp();
                 _isMouseDown = false;
             }
+        }
+
+        private static void SetLastActionTimeStamp()
+        {
+            LastAction = Time.time;
         }
     }
 }
