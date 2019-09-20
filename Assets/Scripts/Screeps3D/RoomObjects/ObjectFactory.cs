@@ -54,8 +54,12 @@ namespace Screeps3D.RoomObjects
                     return new PowerCreep();
                 case Constants.TypePortal:
                     return new Portal();
+                case Constants.TypeRoad:
+                    return new RoomObject(); // Roads are implemented in a different way
+                case Constants.TypeObserver:
+                    return new RoomObject(); // Observers are implemented in a different way for some reason
                 default:
-                    return new RoomObject();
+                    return new PlaceHolderRoomObject();
             }
         }
     }

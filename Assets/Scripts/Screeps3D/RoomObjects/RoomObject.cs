@@ -83,7 +83,7 @@ namespace Screeps3D.RoomObjects
                 OnShow(true);
         }
 
-        private void AssignView()
+        protected internal virtual void AssignView()
         {
             if (Shown && View == null)
             {
