@@ -126,41 +126,51 @@ namespace Screeps_API
 
         public Texture2D Generate(JSONObject badge, float size = BADGE_SIZE)
         {
-            float pathDefinitionSize = 100;
-            float center = pathDefinitionSize / 2;
-
-            var badgeParams = new SvgParams
+            try
             {
-                param = (int) badge["param"].n,
-                flip = badge["flip"].b,
-            };
+                float pathDefinitionSize = 100;
+                float center = pathDefinitionSize / 2;
 
-            _badgePaths.Add(badge, badgeParams);
-            _badgeColors.Add(badge, badgeParams);
+                var badgeParams = new SvgParams
+                {
+                    param = (int)badge["param"]?.n,
+                    flip = badge["flip"].b,
+                };
 
-            var rotation = badgeParams.flip ? badgeParams.rotation : 0;
+                _badgePaths.Add(badge, badgeParams);
+                _badgeColors.Add(badge, badgeParams);
 
-            var sb = new StringBuilder();
-            sb.Append(string.Format(
-                "<svg width=\"{0}\" height=\"{1}\" viewBox=\"0 0 {2} {3}\" shape-rendering=\"geometricPrecision\">",
-                size, size, pathDefinitionSize, pathDefinitionSize));
-            sb.Append(string.Format(
-                "\n\t<defs><clipPath id=\"clip\"><circle cx=\"{0}\" cy=\"{1}\" r=\"{2}\" /></clipPath></defs>",
-                center, center, pathDefinitionSize / 2));
-            sb.Append(string.Format(
-                "\n\t<g transform=\"rotate({0} {1} {2})\">", rotation, center, center));
-            sb.Append(string.Format(
-                "\n\t\t<rect x=\"0\" y=\"0\" width=\"{0}\" height=\"{1}\" fill=\"{2}\" clip-path=\"url(#clip)\"/>",
-                pathDefinitionSize, pathDefinitionSize, badgeParams.color1));
-            sb.Append(string.Format(
-                "\n\t\t<path d=\"{0}\" fill=\"{1}\" clip-path=\"url(#clip)\"/>", badgeParams.path1,
-                badgeParams.color2));
-            sb.Append(string.Format(
-                "\n\t\t<path d=\"{0}\" fill=\"{1}\" clip-path=\"url(#clip)\"/>", badgeParams.path2,
-                badgeParams.color3));
-            sb.Append("\n\t</g>\n</svg>");
+                var rotation = badgeParams.flip ? badgeParams.rotation : 0;
 
-            return Texturize(sb.ToString());
+                var sb = new StringBuilder();
+                sb.Append(string.Format(
+                    "<svg width=\"{0}\" height=\"{1}\" viewBox=\"0 0 {2} {3}\" shape-rendering=\"geometricPrecision\">",
+                    size, size, pathDefinitionSize, pathDefinitionSize));
+                sb.Append(string.Format(
+                    "\n\t<defs><clipPath id=\"clip\"><circle cx=\"{0}\" cy=\"{1}\" r=\"{2}\" /></clipPath></defs>",
+                    center, center, pathDefinitionSize / 2));
+                sb.Append(string.Format(
+                    "\n\t<g transform=\"rotate({0} {1} {2})\">", rotation, center, center));
+                sb.Append(string.Format(
+                    "\n\t\t<rect x=\"0\" y=\"0\" width=\"{0}\" height=\"{1}\" fill=\"{2}\" clip-path=\"url(#clip)\"/>",
+                    pathDefinitionSize, pathDefinitionSize, badgeParams.color1));
+                sb.Append(string.Format(
+                    "\n\t\t<path d=\"{0}\" fill=\"{1}\" clip-path=\"url(#clip)\"/>", badgeParams.path1,
+                    badgeParams.color2));
+                sb.Append(string.Format(
+                    "\n\t\t<path d=\"{0}\" fill=\"{1}\" clip-path=\"url(#clip)\"/>", badgeParams.path2,
+                    badgeParams.color3));
+                sb.Append("\n\t</g>\n</svg>");
+
+                return Texturize(sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Could not generate badge from data");
+                Debug.LogError(badge);
+                Debug.LogException(ex);
+                return GenerateInvader(Color.white);
+            }
         }
     }
 }
