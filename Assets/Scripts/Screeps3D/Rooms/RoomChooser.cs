@@ -1,4 +1,8 @@
-﻿using Screeps_API;
+﻿using Common;
+using Screeps_API;
+using Screeps3D.Player;
+using Screeps3D.RoomObjects;
+using Screeps3D.Tools.Selection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -93,8 +97,8 @@ namespace Screeps3D.Rooms
                 return;
             }
 
-            ChooseRandomOwnedRoom();
-            //ChooseRoomWithPVPOrOwnedRoom();
+            //ChooseRandomOwnedRoom();
+            ChooseRoomWithPVPOrOwnedRoom();
         }
 
         private void ChooseRoomWithPVPOrOwnedRoom()
@@ -199,7 +203,76 @@ namespace Screeps3D.Rooms
                 Debug.Log("invalid room");
                 return;
             }
+
+            CameraRig.Instance.OnTargetReached += OnTargetReached;
+
             if (OnChooseRoom != null) OnChooseRoom.Invoke(room);
+
+
+        }
+
+        private void OnTargetReached()
+        {
+            var room = PlayerPosition.Instance.Room;
+            Debug.Log("target reached");
+            if (room != null)
+            {
+                Debug.Log("and we have a room!");
+                room.OnShowObjects += RoomShown;
+
+                void RoomShown(bool show)
+                {
+                    Debug.Log($"{room.Name} should be shown {show}");
+                    if (show)
+                    {
+                        room.RoomUnpacker.OnUnpack += RoomUnpacked;
+                    }
+                }
+            }
+
+            CameraRig.Instance.OnTargetReached -= OnTargetReached;
+        }
+
+
+        private void RoomUnpacked(Room room, JSONObject roomData)
+        {
+            Debug.Log($"{room.Name} should be unpacked we have {room.Objects.Count} objects");
+
+            var controller = room.Objects.SingleOrDefault(ro => ro.Value.Type == Constants.TypeController);
+            if (controller.Value != null)
+            {
+                Debug.Log("and a controller!");
+                //controller.Value.OnShow += SelectOnShow;
+                Selection.Instance.SelectObject(controller.Value);
+            }
+
+            var storage = room.Objects.SingleOrDefault(ro => ro.Value.Type == Constants.TypeStorage);
+            if (storage.Value != null)
+            {
+                Debug.Log("and a storage!");
+                //storage.Value.OnShow += SelectOnShow;
+                Selection.Instance.SelectObject(storage.Value);
+            }
+
+            var terminal = room.Objects.SingleOrDefault(ro => ro.Value.Type == Constants.TypeTerminal);
+            if (terminal.Value != null)
+            {
+                Debug.Log("and a terminal!");
+                //terminal.Value.OnShow += SelectOnShow;
+                Selection.Instance.SelectObject(terminal.Value);
+            }
+
+            room.RoomUnpacker.OnUnpack -= RoomUnpacked;
+        }
+
+        private void SelectOnShow(RoomObject roomObject, bool show)
+        {
+            Debug.Log($"{roomObject.Type} selectonshow {show}");
+            if (show)
+            {
+                Selection.Instance.SelectObject(roomObject);
+                roomObject.OnShow -= SelectOnShow;
+            }
         }
 
         private void InitializeChooser(string str)
@@ -290,7 +363,7 @@ namespace Screeps3D.Rooms
             return $"{dx}{x}{dy}{y}";
         }
 
-        private (int,int) XYFromRoom(string room)
+        private (int, int) XYFromRoom(string room)
         {
             var match = Regex.Match(room, @"^(?<dx>[WE])(?<x>\d+)(?<dy>[NS])(?<y>\d+)$");
             //let[, dx, x, dy, y] = room.match(/ /)
@@ -311,7 +384,8 @@ namespace Screeps3D.Rooms
             if (mapRoomsCache.Count == 0)
             {
                 Debug.Log("Scanning sectors");
-                ScanSectors(shard, (jsonRooms, jsonUsers) => {
+                ScanSectors(shard, (jsonRooms, jsonUsers) =>
+                {
                     //console.log('Sectors found:', sectors)
                     foreach (var jsonRoom in jsonRooms)
                     {
@@ -365,7 +439,8 @@ namespace Screeps3D.Rooms
         private void Scan(string shard, List<string> rooms, Action<List<JSONObject>, JSONObject> callback) /* callback rooms & users*/
         {
 
-            ScreepsAPI.Http.GetMapStats(rooms, shard, "owner0", (jsonString) => {
+            ScreepsAPI.Http.GetMapStats(rooms, shard, "owner0", (jsonString) =>
+            {
                 var ret = new List<JSONObject>();
 
                 var result = new JSONObject(jsonString);
@@ -375,7 +450,7 @@ namespace Screeps3D.Rooms
                     var kObj = stats[k];
                     var status = kObj["status"];
                     var own = kObj["own"];
-                    kObj.AddField("id", k); 
+                    kObj.AddField("id", k);
                     if (status.str == "normal")
                     {
                         ret.Add(kObj);

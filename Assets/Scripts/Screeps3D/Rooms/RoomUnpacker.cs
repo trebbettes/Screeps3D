@@ -11,7 +11,7 @@ namespace Screeps3D.Rooms
         private Room _room;
         private List<string> _removeList = new List<string>();
 
-        public Action<JSONObject> OnUnpack;
+        public Action<Room,JSONObject> OnUnpack;
 
         public void Init(Room room)
         {
@@ -27,9 +27,8 @@ namespace Screeps3D.Rooms
             UnpackUsers(roomData);
             UnpackFlags(roomData);
             UnpackObjects(roomData);
-            
-            if (OnUnpack != null)
-                OnUnpack(roomData);
+
+            OnUnpack?.Invoke(_room, roomData);
         }
 
         private void UnpackObjects(JSONObject roomData)

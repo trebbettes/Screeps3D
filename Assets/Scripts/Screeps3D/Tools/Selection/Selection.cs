@@ -129,7 +129,7 @@ namespace Screeps3D.Tools.Selection
             _selections.Values.ToList().ForEach(obj => DeselectObject(obj));
         }
 
-        private void SelectObject(RoomObject obj)
+        public void SelectObject(RoomObject obj)
         {
             if (!_selections.ContainsKey(obj.Id))
             {
