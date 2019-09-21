@@ -43,6 +43,7 @@ namespace Screeps3D.RoomObjects.Views
             }
         }
 
+#if UNITY_EDITOR
         private void OnRenderObject()
         {
             if (!Application.IsPlaying(gameObject))
@@ -54,5 +55,7 @@ namespace Screeps3D.RoomObjects.Views
                 }
             }
         }
+#endif
+
     }
 }
