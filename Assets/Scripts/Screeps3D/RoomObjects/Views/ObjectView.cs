@@ -33,7 +33,7 @@ namespace Screeps3D.RoomObjects.Views
                 component.Load(roomObject);
             }
 
-            Show(true);
+            Show(roomObject, true);
         }
 
         internal virtual void Delta(JSONObject data)
@@ -60,7 +60,7 @@ namespace Screeps3D.RoomObjects.Views
             RoomObject = null;
         }
 
-        internal void Show(bool shown)
+        internal void Show(RoomObject roomObject, bool shown)
         {
             if (shown)
             {

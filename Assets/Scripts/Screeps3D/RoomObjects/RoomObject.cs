@@ -21,7 +21,7 @@ namespace Screeps3D.RoomObjects
         public bool Initialized { get; protected set; }
         public bool Shown { get; protected set; }
         
-        public event Action<bool> OnShow;
+        public event Action<RoomObject, bool> OnShow;
         public event Action<JSONObject> OnDelta;
 
         public event Action<RoomObject, Vector3> OnPosition;
@@ -80,7 +80,7 @@ namespace Screeps3D.RoomObjects
 
             Shown = true;
             if (OnShow != null)
-                OnShow(true);
+                OnShow(this, true);
         }
 
         protected internal virtual void AssignView()
@@ -100,7 +100,7 @@ namespace Screeps3D.RoomObjects
 
             Shown = false;
             if (OnShow != null)
-                OnShow(false);
+                OnShow(this, false);
         }
 
         protected void SetPosition()

@@ -138,8 +138,18 @@ namespace Screeps3D.Tools.Selection
                 {
                     obj.View.gameObject.AddComponent<SelectionView>();
                 }
-                if (OnSelect != null)
-                    OnSelect(obj);
+
+                obj.OnShow += Obj_OnShow;
+
+                OnSelect?.Invoke(obj);
+            }
+        }
+
+        private void Obj_OnShow(RoomObject roomObject, bool show)
+        {
+            if (!show)
+            {
+                DeselectObject(roomObject);
             }
         }
 

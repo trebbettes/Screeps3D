@@ -92,6 +92,13 @@ namespace Screeps3D.Rooms
             {
                 return;
             }
+
+            ChooseRandomOwnedRoom();
+            //ChooseRoomWithPVPOrOwnedRoom();
+        }
+
+        private void ChooseRoomWithPVPOrOwnedRoom()
+        {
             //// requires screepsmod-admin-utils
             //https://botarena.screepspl.us/api/experimental/pvp?interval=100
             var body = new RequestBody();
@@ -116,28 +123,7 @@ namespace Screeps3D.Rooms
                 }
                 else
                 {
-                    
-                    GetMapRooms(_shards[_shardInput.value], (jsonRooms, jsonUsers) => {
-                        //  use the mapStats endpoint to get owned rooms and randomly select one
-                        //const { rooms: rawRooms } = await getMapRooms(api)
-                        //rooms = rawRooms.filter(r => r.own && r.own.level)
-                        //room = rooms[Math.floor(Math.random() * rooms.length)].id    
-
-                        //        "own": {
-                        //            "user": "5d7934a9e0b2b571f857b212",
-                        //"level": 0
-
-                        //        },
-                        var ownedRooms = jsonRooms.Where(r => r.HasField("own") && r["own"].HasField("level") && r["own"]["level"].n > 0);
-                        var random = new System.Random();
-                        var room = ownedRooms.ElementAt(random.Next(ownedRooms.Count()));
-                        var user = jsonUsers[room["own"]["user"].str];
-                        var roomName = room["id"].str;
-
-                        Debug.Log($"Going to room {roomName} owned by {user["username"].str}");
-                        _roomInput.text = roomName;
-                        this.GetAndChooseRoom(roomName);
-                    });
+                    ChooseRandomOwnedRoom();
                 }
 
 
@@ -156,45 +142,34 @@ namespace Screeps3D.Rooms
                     }
                  */
             });
-
-            /*
-             async function roomSwap() {
-              // return setRoom('E7N5')
-              while(true) {
-                try {
-                  const { pvp } =  await api.raw.experimental.pvp(100)
-                  const [shard='shard0'] = Object.keys(pvp)
-                  let { [shard]: { rooms } } = pvp
-                  state.pvp.rooms = rooms
-                  rooms.sort((a,b) => b.lastPvpTime - a.lastPvpTime)
-                  const now = Date.now()
-                  const append = rooms.filter(r => r.lastPvpTime > state.gameTime - 50).map(r => `${now},${r._id},${r.lastPvpTime}\n`).join('')
-                  fs.appendFile('pvp.csv', append, () => {})
-                  rooms = rooms.filter(r => r.lastPvpTime > state.gameTime - 10)
-                  let room = ''
-                  if (chatRoom && chatRoomTimeout > Date.now()) {
-                    room = chatRoom
-                  } else if (rooms.length) {
-                    const { _id, lastPvpTime: time } = rooms[Math.floor(Math.random() * rooms.length)]
-                    room = _id
-                  } else {
-                    const { stats } = await api.raw.game.mapStats(roomList, 'owner0')
-                    for(let k in stats) {
-                      const r = stats[k]
-                      if (r.own && r.own.level) {
-                        rooms.push(k)
-                      }
-                    }
-                    console.log(stats)
-                    room = rooms[Math.floor(Math.random() * rooms.length)]
-                  }
-                  await setRoom(room)
-                } catch(e) { console.error('roomSwap', e) }
-                await sleep(ROOM_SWAP_INTERVAL)
-              }
-            }
-             * */
         }
+
+        private void ChooseRandomOwnedRoom()
+        {
+            GetMapRooms(_shards[_shardInput.value], (jsonRooms, jsonUsers) =>
+            {
+                //  use the mapStats endpoint to get owned rooms and randomly select one
+                //const { rooms: rawRooms } = await getMapRooms(api)
+                //rooms = rawRooms.filter(r => r.own && r.own.level)
+                //room = rooms[Math.floor(Math.random() * rooms.length)].id    
+
+                //        "own": {
+                //            "user": "5d7934a9e0b2b571f857b212",
+                //"level": 0
+
+                //        },
+                var ownedRooms = jsonRooms.Where(r => r.HasField("own") && r["own"].HasField("level") && r["own"]["level"].n > 0);
+                var random = new System.Random();
+                var room = ownedRooms.ElementAt(random.Next(ownedRooms.Count()));
+                var user = jsonUsers[room["own"]["user"].str];
+                var roomName = room["id"].str;
+
+                Debug.Log($"Going to room {roomName} owned by {user["username"].str}");
+                _roomInput.text = roomName;
+                this.GetAndChooseRoom(roomName);
+            });
+        }
+
         public void OnSelectedShardChanged(string shardName)
         {
             var shardIndex = _shardInput.options.FindIndex(s => s.text == shardName);

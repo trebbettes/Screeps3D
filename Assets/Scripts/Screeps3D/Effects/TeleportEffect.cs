@@ -59,7 +59,7 @@ namespace Screeps3D.Effects
             PoolLoader.Return(PATH, gameObject);
         }
 
-        private void Origin_OnShow(bool show)
+        private void Origin_OnShow(RoomObject roomObject, bool show)
         {
             if (!show)
             {
