@@ -83,6 +83,7 @@ namespace Screeps_API
             SetConnectionStatus(true);
             
             Http.Request("GET", "/api/game/time", null, SetTime);
+            // Http.Request("GET", "/api/game/time?shard=shard3", null, SetTime); is the correct syntax for MMO, we have to fix that I guess, what about PS, do we even know what shard we are on at this point?
         }
 
         private void SetTime(string obj)

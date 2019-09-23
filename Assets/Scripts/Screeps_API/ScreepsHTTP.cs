@@ -200,5 +200,16 @@ namespace Screeps_API
 
             return Request("POST", "/api/game/map-stats", body, onSuccess: onSuccess);
         }
+
+        /* Experimental */
+        public IEnumerator<UnityWebRequestAsyncOperation> GetExperimentalNukes(Action<string> onSuccess)
+        {
+            /*
+             // https://screeps.com/api/experimental/nukes
+             // for PS it requires screepsmod-admin-utils or another mod that implements the endpoint
+            */
+
+            return Request("GET", "/api/experimental/nukes", onSuccess: onSuccess);
+        }
     }
 }
