@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using Common;
+using Screeps_API;
 using Screeps3D.RoomObjects;
 using TMPro;
 using UnityEngine;
@@ -17,17 +18,24 @@ namespace Screeps3D.Effects
         private Vector3 _endPos;
         private Vector3 _startPos;
 
-        public void Load(RoomObject creep, string message, bool isPublic = true)
+        public void Load(RoomObject roomObject, string message, bool isPublic = true)
         {
-            if (creep.View == null) return;
+            if (roomObject.View == null) return;
             
-            _startPos = creep.View.transform.position + new Vector3(0, 2, 0);
+            _startPos = roomObject.View.transform.position + new Vector3(0, 2, 0);
             gameObject.transform.position = _startPos;
-            _endPos = creep.View.transform.position + new Vector3(0, 4, 0);
+            _endPos = roomObject.View.transform.position + new Vector3(0, 4, 0);
             _label.enabled = false;
             _time = 0f;
             _label.text = message;
-            _label.alpha = isPublic ? 1f : 0.5f;
+
+            var creep = roomObject as Creep;
+            if (creep != null)
+            {
+                var privateAlpha = creep.Owner.UserId != ScreepsAPI.Me.UserId ? 0.0f : 0.5f;// should probably not render it at all if not your say
+                _label.alpha = isPublic ? 1f : privateAlpha; // hide private say for now, need to show it for players owning the creep
+            }
+
             StartCoroutine(Display());
         }
 
