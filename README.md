@@ -35,8 +35,8 @@ The Project is built using Unity and C# so the following software is required to
 
 ### Software Requirements
 * Visual Studio 2019 Community Edition
-* Unity 2019.2.5f1
-* Blender 2.79
+* [Unity 2019.2.5f1](unityhub://2019.2.5f1/9dace1eed4cc)
+* [Blender 2.79](http://download.blender.org/release/Blender2.79/)
   * If no models are showing up, you need to install blender, .blend files are used in unity
   * Models might take a while before showing up after installing blender, it has to "reimport" the .blend files before they render.
 
