@@ -438,6 +438,7 @@ namespace Screeps3D.Rooms
 
         private void Scan(string shard, List<string> rooms, Action<List<JSONObject>, JSONObject> callback) /* callback rooms & users*/
         {
+            // TODO: mapstats are now available in MapStatsUpdater.Instance, no reason to call this, should be refactored.
 
             ScreepsAPI.Http.GetMapStats(rooms, shard, "owner0", (jsonString) =>
             {

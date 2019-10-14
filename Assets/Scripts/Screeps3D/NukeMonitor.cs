@@ -48,6 +48,7 @@ namespace Assets.Scripts.Screeps3D
                 var status = obj["ok"];
                 var nukes = obj["nukes"];
                 var nukesShardName = nukes.keys[shardIndex];
+                var shardName = ScreepsAPI.Cache.MMO ? nukesShardName : $"shard{shardIndex}";
                 var shardNukes = nukes[nukesShardName].list;
                 NotifyText.Message($"{nukesShardName} has {shardNukes.Count} nukes!", Color.red);
                 Debug.LogWarning(shardNukes.ToString());
@@ -60,21 +61,21 @@ namespace Assets.Scripts.Screeps3D
                         time = (long)timeData.n;
                     }
 
+                    
                     // TODO: WorldViewFactory like RoomViewFactory?
                     foreach (var nuke in shardNukes)
                     {
                         var go = PrefabLoader.Load(string.Format("{0}{1}", Path, "nukeMissile"));
                         var arcRenderer = go.GetComponentInChildren<NukeMissileArchRenderer>();
 
-                        var launcRoom = RoomManager.Instance.Get(nuke["launchRoomName"].str, nukesShardName);
+                        var launcRoom = RoomManager.Instance.Get(nuke["launchRoomName"].str, shardName);
                         arcRenderer.point1.transform.position = launcRoom.Position + new Vector3(25, 0, 25);
                         var point1Text = arcRenderer.point1.GetComponentInChildren<TMP_Text>();
                         point1Text.text = launcRoom.Name;
 
-                        var impactRoom = RoomManager.Instance.Get(nuke["room"].str, nukesShardName);
+                        var impactRoom = RoomManager.Instance.Get(nuke["room"].str, shardName);
                         arcRenderer.point2.transform.position = PosUtility.Convert(nuke, impactRoom);
                         var point2Text = arcRenderer.point2.GetComponentInChildren<TMP_Text>();
-                        
 
                         var landingTime = (long)nuke["landTime"].n;
                         var initialLaunchTick = landingTime - NUKE_TRAVEL_TICKS;
