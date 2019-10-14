@@ -71,18 +71,20 @@ namespace Assets.Scripts.Screeps3D
                         var launcRoom = RoomManager.Instance.Get(nuke["launchRoomName"].str, shardName);
                         arcRenderer.point1.transform.position = launcRoom.Position + new Vector3(25, 0, 25);
                         var point1Text = arcRenderer.point1.GetComponentInChildren<TMP_Text>();
-                        point1Text.text = launcRoom.Name;
+                        point1Text.text = "";//launcRoom.Name;
 
                         var impactRoom = RoomManager.Instance.Get(nuke["room"].str, shardName);
                         arcRenderer.point2.transform.position = PosUtility.Convert(nuke, impactRoom);
                         var point2Text = arcRenderer.point2.GetComponentInChildren<TMP_Text>();
 
-                        var landingTime = (long)nuke["landTime"].n;
-                        var initialLaunchTick = landingTime - NUKE_TRAVEL_TICKS;
+                        var nukeLandTime = nuke["landTime"];
+                        
+                        var landingTime = nukeLandTime.IsNumber ? (long)nukeLandTime.n : long.Parse(nukeLandTime.str.Replace("\"",""));
+                        var initialLaunchTick = Math.Max(landingTime - NUKE_TRAVEL_TICKS,0);
                         var progress = (float)(time - initialLaunchTick) / NUKE_TRAVEL_TICKS;
-                        arcRenderer.Progress(progress);
+                        arcRenderer.Progress(progress); // TODO: render progress on selection panel
 
-                        point2Text.text = $"{progress*100}%";
+                        point2Text.text = ""; //$"{progress*100}%";
 
                         go.name = $"nukeMissile:{launcRoom.Name}->{impactRoom.Name} {progress*100}%";
                     }
