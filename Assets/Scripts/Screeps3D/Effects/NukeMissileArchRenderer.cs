@@ -34,6 +34,8 @@ public class NukeMissileArchRenderer : MonoBehaviour
         lr.startWidth = 1.5f;
         lr.endWidth = 1.5f;
 
+        //missile.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+
     }
 
     //private void OnDrawGizmos()
@@ -80,6 +82,10 @@ public class NukeMissileArchRenderer : MonoBehaviour
         //lr.positionCount = pointList.Count;
         //lr.SetPositions(pointList.ToArray());
 
+        //missile.transform.LookAt(point2.transform, Vector3.down);
+        //missile.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+
+
     }
 
     private Vector3[] CalculateArcArray()
@@ -101,7 +107,7 @@ public class NukeMissileArchRenderer : MonoBehaviour
     /// Calculates height and distance
     /// </summary>
     /// <returns></returns>
-    private Vector3 CalculateArcPoint(float t, float maxDistance)
+    private Vector3 CalculateArcPoint(float t, float maxDistance = 0f)
     {
         //float x = t * maxDistance;
         //float y = x * Mathf.Tan(radianAngle) - ((gravity * x * x)/(2 * velocity * velocity * Mathf.Cos(radianAngle) * Mathf.Cos(radianAngle)));
@@ -114,11 +120,15 @@ public class NukeMissileArchRenderer : MonoBehaviour
     void Update()
     {
         RenderArc();
+        Progress(0.8f);
     }
 
     internal void Progress(float progress)
     {
-        missile.transform.position = CalculateArcPoint(progress,0);
+        missile.transform.position = CalculateArcPoint(progress);
+        
+        var nextPoint = CalculateArcPoint(progress + 0.001f);
+        missile.transform.LookAt(nextPoint);
     }
 }
 
