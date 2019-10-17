@@ -31,6 +31,8 @@ public class NukeMissileArchRenderer : MonoBehaviour
         lr = GetComponent<LineRenderer>();
         // https://en.wikipedia.org/wiki/Projectile_motion
         gravity = Mathf.Abs(Physics.gravity.y);
+        lr.startWidth = 1.5f;
+        lr.endWidth = 1.5f;
 
     }
 
