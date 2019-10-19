@@ -30,7 +30,9 @@ namespace Screeps3D
         public const string TypePortal = "portal";
         public const string TypeRoad = "road";
         public const string TypeObserver = "observer";
-        
+        public const string TypeExtractor = "extractor";
+
+
 
         public const float ShardHeight = 100;
 
