@@ -6,6 +6,13 @@ namespace Screeps3D.World.Views
     // This is not the "overlay" but the actual rendering of the missile and arc prefab ... hmmmm
     public class NukeMissileOverlay : WorldOverlay
     {
+        public string Id { get; set; }
+
+        public NukeMissileOverlay(string id)
+        {
+            this.Id = id;
+        }
+
         public override string Type { get; set; } = "nukeMissile";
         public Room LaunchRoom { get; internal set; }
         public Room ImpactRoom { get; internal set; }

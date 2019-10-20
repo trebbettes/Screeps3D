@@ -24,9 +24,6 @@ namespace Assets.Scripts.Screeps3D
    
     public class NukeMonitor : BaseSingleton<NukeMonitor>
     {
-        private const int NUKE_ROOM_RANGE = 10;
-        private const int NUKE_TRAVEL_TICKS = 50000;
-
         private Dictionary<string, NukeMissileOverlay> _nukes = new Dictionary<string, NukeMissileOverlay>();
 
         private void Start()
@@ -60,7 +57,7 @@ namespace Assets.Scripts.Screeps3D
                     var timeData = new JSONObject(jsonTime)["time"];
                     if (timeData != null)
                     {
-                        time = (long)timeData.n;
+                        ScreepsAPI.Time = time = (long)timeData.n;
                     }
                     
                     foreach (var nuke in shardNukes)
@@ -69,7 +66,7 @@ namespace Assets.Scripts.Screeps3D
 
                         if (!_nukes.TryGetValue(id, out var overlay)) {
                             // TODO: further detection if this was a newly launched nuke. perhaps the progress is at a really low percentage, or between x ticks?
-                            overlay = new NukeMissileOverlay();
+                            overlay = new NukeMissileOverlay(id);
                             _nukes.Add(id, overlay);
                         }
 
@@ -85,8 +82,8 @@ namespace Assets.Scripts.Screeps3D
 
                         var landingTime = nukeLandTime.IsNumber ? (long)nukeLandTime.n : long.Parse(nukeLandTime.str.Replace("\"",""));
                         
-                        var initialLaunchTick = Math.Max(landingTime - NUKE_TRAVEL_TICKS,0);
-                        var progress = (float)(time - initialLaunchTick) / NUKE_TRAVEL_TICKS;
+                        var initialLaunchTick = Math.Max(landingTime - Constants.NUKE_TRAVEL_TICKS,0);
+                        var progress = (float)(time - initialLaunchTick) / Constants.NUKE_TRAVEL_TICKS;
 
                         overlay.LandingTime = landingTime;
                         overlay.InitialLaunchTick = initialLaunchTick;

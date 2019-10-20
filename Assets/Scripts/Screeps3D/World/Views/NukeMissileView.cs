@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using Screeps_API;
+using TMPro;
 using UnityEngine;
 
 namespace Screeps3D.World.Views
@@ -32,13 +33,25 @@ namespace Screeps3D.World.Views
             var point2Text = arcRenderer.point2.GetComponentInChildren<TMP_Text>();
             point2Text.text = ""; //$"{progress*100}%";
 
-            gameObject.name = $"nukeMissile:{Overlay?.LaunchRoom?.Name}->{Overlay?.ImpactRoom?.Name} {Overlay?.Progress * 100}%";
+            arcRenderer.Progress(Overlay.Progress); // TODO: render progress on selection panel when you select the missile.
         }
 
         private void Update()
         {
-            // TODO: should we simulate movement / progress in between nukemonitor updates so the misile moves "smoothly"? this neeeds to be in update then. and not sure calling arcRenderer.Progress works, we then need a "targetProgress" or something like that
-            arcRenderer.Progress(Overlay.Progress); // TODO: render progress on selection panel when you select the missile.
+            if (Overlay == null)
+            {
+                return;
+            }
+
+            // TODO: should we simulate movement / progress in between nukemonitor updates so the misile moves "smoothly"? this neeeds to be in update then. and not sure calling arcRenderer.Progress works, we then need a "targetProgress" or something like that, could let us inspire by creep movement between ticks
+            // TODO: should perhaps move this calculation so progress is updated on each tick? and not each rendering?
+            float progress = (float)(ScreepsAPI.Time - Overlay.InitialLaunchTick) / Constants.NUKE_TRAVEL_TICKS;
+
+            Debug.Log(this.Overlay.Id);
+            arcRenderer.Progress(progress);
+
+            gameObject.name = $"nukeMissile:{this.Overlay.Id}:{Overlay?.LaunchRoom?.Name}->{Overlay?.ImpactRoom?.Name} {progress * 100}%";
+
         }
     }
 }

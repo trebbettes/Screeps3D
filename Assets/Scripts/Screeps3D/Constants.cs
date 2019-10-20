@@ -161,6 +161,9 @@ namespace Screeps3D
             "XZHO2",
             "XGH2O",
             "XGHO2",
-        }; 
+        };
+
+        public static int NUKE_ROOM_RANGE = 10;
+        public static int NUKE_TRAVEL_TICKS = 50000;
     }
 }

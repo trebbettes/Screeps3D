@@ -11,7 +11,7 @@ public class NukeMissileArchRenderer : MonoBehaviour
     LineRenderer lr;
     public float velocity;
     public float angle;
-    public int resolution = 10;
+    public int resolution = 1000;
 
     float gravity; // force of gravity
     public float radianAngle;
@@ -120,13 +120,12 @@ public class NukeMissileArchRenderer : MonoBehaviour
     void Update()
     {
         RenderArc();
-        Progress(0.8f);
     }
 
     internal void Progress(float progress)
     {
         missile.transform.position = CalculateArcPoint(progress);
-        
+        Debug.Log($"{progress} {missile.transform.position}");
         var nextPoint = CalculateArcPoint(progress + 0.001f);
         missile.transform.LookAt(nextPoint);
     }
