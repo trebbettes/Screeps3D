@@ -3,6 +3,7 @@ using Screeps_API;
 using Screeps3D;
 using Screeps3D.Player;
 using Screeps3D.Rooms;
+using Screeps3D.World.Views;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +27,7 @@ namespace Assets.Scripts.Screeps3D
         private const int NUKE_ROOM_RANGE = 10;
         private const int NUKE_TRAVEL_TICKS = 50000;
 
-        private const string Path = "Prefabs/WorldView/";
+        private Dictionary<string, NukeMissileOverlay> _nukes = new Dictionary<string, NukeMissileOverlay>();
 
         private void Start()
         {
@@ -54,39 +55,42 @@ namespace Assets.Scripts.Screeps3D
                 Debug.LogWarning(shardNukes.ToString());
 
                 var time = ScreepsAPI.Time;
+                // TODO: getting time should be moved to when logging or switching shards
                 ScreepsAPI.Http.Request("GET", $"/api/game/time?shard={nukesShardName}", null, (jsonTime) => {
                     var timeData = new JSONObject(jsonTime)["time"];
                     if (timeData != null)
                     {
                         time = (long)timeData.n;
                     }
-
                     
-                    // TODO: WorldViewFactory like RoomViewFactory?
                     foreach (var nuke in shardNukes)
                     {
-                        var go = PrefabLoader.Load(string.Format("{0}{1}", Path, "nukeMissile"));
-                        var arcRenderer = go.GetComponentInChildren<NukeMissileArchRenderer>();
+                        var id = nuke["_id"].str; // should probably switch to UnPackUtility later.
 
-                        var launcRoom = RoomManager.Instance.Get(nuke["launchRoomName"].str, shardName);
-                        arcRenderer.point1.transform.position = launcRoom.Position + new Vector3(25, 0, 25);
-                        var point1Text = arcRenderer.point1.GetComponentInChildren<TMP_Text>();
-                        point1Text.text = "";//launcRoom.Name;
+                        if (!_nukes.TryGetValue(id, out var overlay)) {
+                            // TODO: further detection if this was a newly launched nuke. perhaps the progress is at a really low percentage, or between x ticks?
+                            overlay = new NukeMissileOverlay();
+                            _nukes.Add(id, overlay);
+                        }
 
-                        var impactRoom = RoomManager.Instance.Get(nuke["room"].str, shardName);
-                        arcRenderer.point2.transform.position = PosUtility.Convert(nuke, impactRoom);
-                        var point2Text = arcRenderer.point2.GetComponentInChildren<TMP_Text>();
+                        // TODO: overlay.Unpack?
+
+                        // TODO: should probably not be doing this everytime we get nuke data, if it is already initialized?
+                        overlay.LaunchRoom = RoomManager.Instance.Get(nuke["launchRoomName"].str, shardName);
+                        overlay.ImpactRoom = RoomManager.Instance.Get(nuke["room"].str, shardName);
+                        overlay.ImpactPosition = PosUtility.Convert(nuke, overlay.ImpactRoom);
+
 
                         var nukeLandTime = nuke["landTime"];
-                        
+
                         var landingTime = nukeLandTime.IsNumber ? (long)nukeLandTime.n : long.Parse(nukeLandTime.str.Replace("\"",""));
+                        
                         var initialLaunchTick = Math.Max(landingTime - NUKE_TRAVEL_TICKS,0);
                         var progress = (float)(time - initialLaunchTick) / NUKE_TRAVEL_TICKS;
-                        arcRenderer.Progress(progress); // TODO: render progress on selection panel
 
-                        point2Text.text = ""; //$"{progress*100}%";
-
-                        go.name = $"nukeMissile:{launcRoom.Name}->{impactRoom.Name} {progress*100}%";
+                        overlay.LandingTime = landingTime;
+                        overlay.InitialLaunchTick = initialLaunchTick;
+                        overlay.Progress = progress;
                     }
 
                     if (shardNukes.Count > 0)
@@ -95,8 +99,6 @@ namespace Assets.Scripts.Screeps3D
                         // should probably also clear rendered nukes from previous shard?
                         PlayerPosition.Instance.OnRoomChange -= OnRoomChange;
                     }
-
-
                 });
 
 
@@ -173,14 +175,6 @@ namespace Assets.Scripts.Screeps3D
         //        OnShow(this, true);
         //}
 
-        //protected internal virtual void AssignView()
-        //{
-        //    if (Shown && View == null)
-        //    {
-        //        View = ObjectViewFactory.Instance.NewView(this);
-        //        if (View)
-        //            View.Load(this);
-        //    }
-        //}
+        
     }
 }

@@ -398,6 +398,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8944102950650276431}
+  - component: {fileID: 835932711001262442}
+  - component: {fileID: 4230496987166656073}
   m_Layer: 0
   m_Name: nukeMissile
   m_TagString: Untagged
@@ -423,6 +425,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &835932711001262442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4200659086031717031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8fe2fc9e84589254cb3518436625129c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _vis: {fileID: 0}
+--- !u!114 &4230496987166656073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4200659086031717031}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cffd3fb6f91845144b957ef40f08ee56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4309254421898853469
 GameObject:
   m_ObjectHideFlags: 0
@@ -649,7 +676,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6232590813085153962}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.37031332, y: 0.6267481, z: -0.5215843, w: 0.44497725}
   m_LocalPosition: {x: 16.768, y: 31.999998, z: -5.855999}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
