@@ -1,4 +1,5 @@
 ﻿using Screeps_API;
+using Screeps3D.Effects;
 using TMPro;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ namespace Screeps3D.World.Views
         private NukeMissileArchRenderer arcRenderer;
 
         private bool initialized = false;
+
+        private bool nukeExploded = false;
 
         public void Init(WorldOverlay overlay)
         {
@@ -38,6 +41,9 @@ namespace Screeps3D.World.Views
             //arcRenderer.Progress(Overlay.Progress); // TODO: render progress on selection panel when you select the missile.
 
             initialized = true;
+
+            // spawn nuke explosion for testing purposes, not sure it belongs on the missile view? :shrugh: belongs in an "onTick" event or something
+            //EffectsUtility.NukeExplosition(Overlay.ImpactPosition);
         }
 
         private void Update()
@@ -60,6 +66,12 @@ namespace Screeps3D.World.Views
             arcRenderer.Progress(progress);
 
             gameObject.name = $"nukeMissile:{this.Overlay.Id}:{Overlay?.LaunchRoom?.Name}->{Overlay?.ImpactRoom?.Name} {progress * 100}%";
+
+            if (progress >= 1f && !nukeExploded)
+            {
+                EffectsUtility.NukeExplosition(Overlay.ImpactPosition);
+                nukeExploded = true;
+            }
 
         }
     }

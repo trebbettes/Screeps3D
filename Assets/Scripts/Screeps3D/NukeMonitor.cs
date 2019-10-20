@@ -20,8 +20,13 @@ namespace Assets.Scripts.Screeps3D
      *  
      *  A nuke has a range of 10 rooms
      *  It takes 50.000 ticks to land
+     *  
+     *  TODO: get "inspired" by https://github.com/ags131/nuke-announcer/blob/master/index.js
+     *  Figure out if the nuke is a hostile nuke or your own nuke.
+     *  Figure out Attacker and Defender from map-stats.
+     *  ETA in real world time
      **/
-   
+
     public class NukeMonitor : BaseSingleton<NukeMonitor>
     {
         private Dictionary<string, NukeMissileOverlay> _nukes = new Dictionary<string, NukeMissileOverlay>();
@@ -63,11 +68,11 @@ namespace Assets.Scripts.Screeps3D
                     foreach (var nuke in shardNukes)
                     {
                         var id = nuke["_id"].str; // should probably switch to UnPackUtility later.
-
-                        if (!_nukes.TryGetValue(id, out var overlay)) {
+                        var key = $"{shardName}/{id}";
+                        if (!_nukes.TryGetValue(key, out var overlay)) {
                             // TODO: further detection if this was a newly launched nuke. perhaps the progress is at a really low percentage, or between x ticks?
                             overlay = new NukeMissileOverlay(id);
-                            _nukes.Add(id, overlay);
+                            _nukes.Add(key, overlay);
                         }
 
                         // TODO: overlay.Unpack?
@@ -89,6 +94,8 @@ namespace Assets.Scripts.Screeps3D
                         overlay.InitialLaunchTick = initialLaunchTick;
                         overlay.Progress = progress;
                     }
+
+                    // TODO: detect removed nukes and clean up the arc / missile / view
 
                     if (shardNukes.Count > 0)
                     {
