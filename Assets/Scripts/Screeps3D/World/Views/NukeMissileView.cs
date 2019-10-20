@@ -10,6 +10,8 @@ namespace Screeps3D.World.Views
 
         private NukeMissileArchRenderer arcRenderer;
 
+        private bool initialized = false;
+
         public void Init(WorldOverlay overlay)
         {
             Overlay = overlay as NukeMissileOverlay;
@@ -32,13 +34,20 @@ namespace Screeps3D.World.Views
 
             var point2Text = arcRenderer.point2.GetComponentInChildren<TMP_Text>();
             point2Text.text = ""; //$"{progress*100}%";
+            arcRenderer.Progress(Overlay.Progress - 0.3f); // give a little smoke trail when initialized
+            //arcRenderer.Progress(Overlay.Progress); // TODO: render progress on selection panel when you select the missile.
 
-            arcRenderer.Progress(Overlay.Progress); // TODO: render progress on selection panel when you select the missile.
+            initialized = true;
         }
 
         private void Update()
         {
             if (Overlay == null)
+            {
+                return;
+            }
+
+            if (!initialized)
             {
                 return;
             }

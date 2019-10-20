@@ -125,7 +125,7 @@ public class NukeMissileArchRenderer : MonoBehaviour
     internal void Progress(float progress)
     {
         missile.transform.position = CalculateArcPoint(progress);
-        Debug.Log($"{progress} {missile.transform.position}");
+        //Debug.Log($"{progress} {missile.transform.position}");
         var nextPoint = CalculateArcPoint(progress + 0.001f);
         missile.transform.LookAt(nextPoint);
     }
