@@ -61,14 +61,17 @@ namespace Screeps3D.World.Views
             // TODO: should we simulate movement / progress in between nukemonitor updates so the misile moves "smoothly"? this neeeds to be in update then. and not sure calling arcRenderer.Progress works, we then need a "targetProgress" or something like that, could let us inspire by creep movement between ticks
             // TODO: should perhaps move this calculation so progress is updated on each tick? and not each rendering?
             float progress = (float)(ScreepsAPI.Time - Overlay.InitialLaunchTick) / Constants.NUKE_TRAVEL_TICKS;
-
-            Debug.Log(this.Overlay.Id);
+            // TODO: the nuke position progress should be at the tip of the nuke
             arcRenderer.Progress(progress);
+
+            // quadratic curves tend to be far more exciting
+            // make it fast at launch, spending most time in the middle, and gain more and more speed towards impact so it "lands" with a bang?
 
             gameObject.name = $"nukeMissile:{this.Overlay.Id}:{Overlay?.LaunchRoom?.Name}->{Overlay?.ImpactRoom?.Name} {progress * 100}%";
 
             if (progress >= 1f && !nukeExploded)
             {
+                // TODO: nuke effect should be slower, and last longer, when you wait 50k ticks for an explosion, it should be GRAND!!!
                 EffectsUtility.NukeExplosition(Overlay.ImpactPosition);
                 nukeExploded = true;
             }

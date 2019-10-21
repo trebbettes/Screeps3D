@@ -5,12 +5,14 @@ using Screeps3D.Player;
 using Screeps3D.Rooms;
 using Screeps3D.World.Views;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Assets.Scripts.Screeps3D
 {
@@ -31,116 +33,210 @@ namespace Assets.Scripts.Screeps3D
     {
         private Dictionary<string, NukeMissileOverlay> _nukes = new Dictionary<string, NukeMissileOverlay>();
 
+        private List<ShardInfo> _shardInfo = new List<ShardInfo>();
+
+        private IEnumerator getNukes;
+
+        private bool nukesInitialized = false;
+
         private void Start()
         {
-            PlayerPosition.Instance.OnRoomChange += OnRoomChange; // this triggers twice, we might need a more reliable way to detect when loaded
+            //PlayerPosition.Instance.OnRoomChange += OnRoomChange; // this triggers twice, we might need a more reliable way to detect when loaded
+
+            StartCoroutine(GetShardInfo());
+            getNukes = GetNukes();
+            StartCoroutine(getNukes);
         }
 
-        private void OnRoomChange()
+        /// <summary>
+        /// Used to get shard tickrates
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerator GetShardInfo()
         {
+            while (!ScreepsAPI.IsConnected)
+            {
+                yield return new WaitForSeconds(5);
+            }
 
-            NotifyText.Message("SCANNING FOR NUKES!", Color.red);
-
-            // We might have an issue if people use custom shard names, so we can't use shardName, because playerposition shardname is shardX
-            var shardIndex = PlayerPosition.Instance.ShardLevel;
-
-            // Should probably cache this, and refresh it at an interval to detect new nukes.
-            ScreepsAPI.Http.GetExperimentalNukes((jsonString) => {
-
-                var obj = new JSONObject(jsonString);
-                var status = obj["ok"];
-                var nukes = obj["nukes"];
-                var nukesShardName = nukes.keys[shardIndex];
-                var shardName = ScreepsAPI.Cache.MMO ? nukesShardName : $"shard{shardIndex}";
-                var shardNukes = nukes[nukesShardName].list;
-                NotifyText.Message($"{nukesShardName} has {shardNukes.Count} nukes!", Color.red);
-                Debug.LogWarning(shardNukes.ToString());
-
-                var time = ScreepsAPI.Time;
-                // TODO: getting time should be moved to when logging or switching shards
-                ScreepsAPI.Http.Request("GET", $"/api/game/time?shard={nukesShardName}", null, (jsonTime) => {
-                    var timeData = new JSONObject(jsonTime)["time"];
-                    if (timeData != null)
+            ScreepsAPI.Http.Request("GET", $"/api/game/shards/info", null, (jsonShardInfo) => // This should probably be stored on connect, depending on what PS returns here.
+                {
+                    // tickrates and such, what about private servers?
+                    var shardInfo = new JSONObject(jsonShardInfo);
+                    var shards = shardInfo["shards"].list;
+                    foreach (var shard in shards)
                     {
-                        ScreepsAPI.Time = time = (long)timeData.n;
-                    }
-                    
-                    foreach (var nuke in shardNukes)
-                    {
-                        var id = nuke["_id"].str; // should probably switch to UnPackUtility later.
-                        var key = $"{shardName}/{id}";
-                        if (!_nukes.TryGetValue(key, out var overlay)) {
-                            // TODO: further detection if this was a newly launched nuke. perhaps the progress is at a really low percentage, or between x ticks?
-                            overlay = new NukeMissileOverlay(id);
-                            _nukes.Add(key, overlay);
-                        }
-
-                        // TODO: overlay.Unpack?
-
-                        // TODO: should probably not be doing this everytime we get nuke data, if it is already initialized?
-                        overlay.LaunchRoom = RoomManager.Instance.Get(nuke["launchRoomName"].str, shardName);
-                        overlay.ImpactRoom = RoomManager.Instance.Get(nuke["room"].str, shardName);
-                        overlay.ImpactPosition = PosUtility.Convert(nuke, overlay.ImpactRoom);
-
-
-                        var nukeLandTime = nuke["landTime"];
-
-                        var landingTime = nukeLandTime.IsNumber ? (long)nukeLandTime.n : long.Parse(nukeLandTime.str.Replace("\"",""));
-                        
-                        var initialLaunchTick = Math.Max(landingTime - Constants.NUKE_TRAVEL_TICKS,0);
-                        var progress = (float)(time - initialLaunchTick) / Constants.NUKE_TRAVEL_TICKS;
-
-                        overlay.LandingTime = landingTime;
-                        overlay.InitialLaunchTick = initialLaunchTick;
-                        overlay.Progress = progress;
-                    }
-
-                    // TODO: detect removed nukes and clean up the arc / missile / view
-
-                    if (shardNukes.Count > 0)
-                    {
-                        // W need to persist data and detect when changing shard.
-                        // should probably also clear rendered nukes from previous shard?
-                        PlayerPosition.Instance.OnRoomChange -= OnRoomChange;
+                        var tickRateString = shard["tick"].n;
+                        _shardInfo.Add(new ShardInfo(shard));
                     }
                 });
+        }
+
+        private IEnumerator GetNukes()
+        {
+            yield return new WaitForSeconds(5);
+
+            while (true)
+            {
+                if (_shardInfo.Count == 0)
+                {
+                    Debug.LogWarning("shardinfo not fetched yet, waiting 5 seconds");
+                    yield return new WaitForSeconds(5);
+                }
+
+                NotifyText.Message("SCANNING FOR NUKES!", Color.red);
+
+                // We might have an issue if people use custom shard names, so we can't use shardName, because playerposition shardname is shardX
+                var shardIndex = PlayerPosition.Instance.ShardLevel;
+
+                // Should probably cache this, and refresh it at an interval to detect new nukes.
+                ScreepsAPI.Http.GetExperimentalNukes((jsonString) =>
+                {
+
+                    var obj = new JSONObject(jsonString);
+                    var status = obj["ok"];
+                    var nukes = obj["nukes"];
+                    var nukesShardName = nukes.keys[shardIndex];
+                    var shardName = ScreepsAPI.Cache.MMO ? nukesShardName : $"shard{shardIndex}";
+                    var shardNukes = nukes[nukesShardName].list;
+                    NotifyText.Message($"{nukesShardName} has {shardNukes.Count} nukes!", Color.red);
+                    Debug.LogWarning(shardNukes.ToString());
+
+                    var time = ScreepsAPI.Time;
 
 
-                
+                    // TODO: getting time should be moved to when logging or switching shards
+                    ScreepsAPI.Http.Request("GET", $"/api/game/time?shard={nukesShardName}", null, (jsonTime) =>
+                        {
+                            var timeData = new JSONObject(jsonTime)["time"];
+                            if (timeData != null)
+                            {
+                                ScreepsAPI.Time = time = (long)timeData.n;
+                            }
 
-                // TODO: launch detected events
+                            foreach (var nuke in shardNukes)
+                            {
+                                var id = nuke["_id"].str; // should probably switch to UnPackUtility later.
+                                var key = $"{shardName}/{id}"; // shardname breaks something, probably because the same id is stored multiple places?
+                                if (!_nukes.TryGetValue(key, out var overlay))
+                                {
+                                    // TODO: further detection if this was a newly launched nuke. perhaps the progress is at a really low percentage, or between x ticks?
+                                    if (nukesInitialized)
+                                    {
+                                        NotifyText.Message($"{nukesShardName} => Nuclear Launch Detected", Color.red);
+                                    }
+
+                                    overlay = new NukeMissileOverlay(id);
+                                    _nukes.Add(key, overlay);
+                                }
+
+                                // TODO: overlay.Unpack?
+
+                                // TODO: should probably not be doing this everytime we get nuke data, if it is already initialized?
+                                overlay.LaunchRoom = RoomManager.Instance.Get(nuke["launchRoomName"].str, shardName);
+                                overlay.ImpactRoom = RoomManager.Instance.Get(nuke["room"].str, shardName);
+                                overlay.ImpactPosition = PosUtility.Convert(nuke, overlay.ImpactRoom);
 
 
-                /* Example
-                 *  {
-	                    "ok": 1,
-	                    "nukes": {
-		                    "shard0": [],
-		                    "shard1": [],
-		                    "shard2": [{
-				                    "_id": "5d26127173fcd27b55a7ef39",
-				                    "type": "nuke",
-				                    "room": "W23S15",
-				                    "x": 12,
-				                    "y": 37,
-				                    "landTime": 17300541,
-				                    "launchRoomName": "W31S18"
-			                    }, {
-				                    "_id": "5d26aa11385277180e5c2187",
-				                    "type": "nuke",
-				                    "room": "W22S22",
-				                    "x": 23,
-				                    "y": 22,
-				                    "landTime": 17311981,
-				                    "launchRoomName": "W17S28"
-			                    }
-		                    ],
-		                    "shard3": []
-	                    }
-                    }
-                 */
+                                var nukeLandTime = nuke["landTime"];
 
-            });
+
+                                var landingTime = nukeLandTime.IsNumber ? (long)nukeLandTime.n : long.Parse(nukeLandTime.str.Replace("\"", ""));
+
+                                var initialLaunchTick = Math.Max(landingTime - Constants.NUKE_TRAVEL_TICKS, 0);
+                                var progress = (float)(time - initialLaunchTick) / Constants.NUKE_TRAVEL_TICKS;
+
+                                overlay.LandingTime = landingTime;
+                                overlay.InitialLaunchTick = initialLaunchTick;
+                                overlay.Progress = progress;
+
+                                var shard = _shardInfo[shardIndex];
+                                if (shard != null && shard.AverageTick.HasValue)
+                                {
+                                    var tickRate = shard.AverageTick.Value;
+
+                                    var ticksLeft = landingTime - time; // eta
+                                    var etaSeconds = (float)Math.Floor((ticksLeft * tickRate) / 1000f);
+                                    var impact = (float)Math.Floor(Math.Floor(landingTime / 100f) * 100);
+                                    var diff = (float)Math.Floor(etaSeconds * 0.05);
+
+                                    var now = DateTime.Now;
+                                    var eta = now.AddSeconds(etaSeconds);
+
+                                    var etaEarly = eta.AddSeconds(-diff);
+                                    var etaLate = eta.AddSeconds(diff);
+
+                                    Debug.Log($"{id} {overlay?.ImpactRoom?.Name} {eta.ToString()} => {etaEarly.ToString()} - {etaLate.ToString()}");
+                                    Debug.Log($"TicksLeft:{ticksLeft} ETA:{etaSeconds}s Early:{etaEarly}s Late:{etaLate}s");
+                                }
+                                else
+                                {
+                                    Debug.LogError("no shardinfo?");
+                                }
+                            }
+
+                            // TODO: detect removed nukes and clean up the arc / missile / view
+
+                            if (!this.nukesInitialized) { this.nukesInitialized = true; }
+                        });
+
+
+
+
+                    // TODO: launch detected events
+
+
+                    /* Example
+                     *  {
+                            "ok": 1,
+                            "nukes": {
+                                "shard0": [],
+                                "shard1": [],
+                                "shard2": [{
+                                        "_id": "5d26127173fcd27b55a7ef39",
+                                        "type": "nuke",
+                                        "room": "W23S15",
+                                        "x": 12,
+                                        "y": 37,
+                                        "landTime": 17300541,
+                                        "launchRoomName": "W31S18"
+                                    }, {
+                                        "_id": "5d26aa11385277180e5c2187",
+                                        "type": "nuke",
+                                        "room": "W22S22",
+                                        "x": 23,
+                                        "y": 22,
+                                        "landTime": 17311981,
+                                        "launchRoomName": "W17S28"
+                                    }
+                                ],
+                                "shard3": []
+                            }
+                        }
+                     */
+
+                });
+
+                yield return new WaitForSeconds(60);
+            }
+        }
+
+        private class ShardInfo
+        {
+            public ShardInfo(JSONObject info)
+            {
+                // should be a float, but it seems like something is wrong when parsing json?
+                var tickRateString = info["tick"].n.ToString();
+                if (float.TryParse(tickRateString, out var tickRate))
+                {
+                    this.AverageTick = tickRate; // for some reason .n in the jsonobject returns a really really wonky float.. :S
+                }
+            }
+
+            /// <summary>
+            /// Average length of a tick (in milliseconds)
+            /// </summary>
+            public float? AverageTick { get; internal set; }
         }
 
         // How do we instantiate the object, it's kinda like RoomObjects that has a view attached, we should probably do something like that
@@ -179,6 +275,6 @@ namespace Assets.Scripts.Screeps3D
         //        OnShow(this, true);
         //}
 
-        
+
     }
 }
