@@ -29,6 +29,8 @@ namespace Screeps3D
         public RoomInfo GetRoomInfo(string roomName) => _roomInfo.ContainsKey(roomName) ? _roomInfo[roomName] : null; // Do we need shardname support?
         public IEnumerator Scan()
         {
+            yield return new WaitForSeconds(20);
+
             while (true)
             {
                 yield return new WaitForSeconds(5);
@@ -63,6 +65,7 @@ namespace Screeps3D
                     // We might have an issue if people use custom shard names, so we can't use shardName, because playerposition shardname is shardX
                     var shardName = PlayerPosition.Instance.ShardName;
 
+                    // TODO: we are hitting a request limit for map stats. probably need to check node-screeps-api how it throttles... or if something else is wonky
                     ScreepsAPI.Http.GetMapStats(rooms, shardName, "owner0", serverCallback);
                 }
                 catch (Exception ex)

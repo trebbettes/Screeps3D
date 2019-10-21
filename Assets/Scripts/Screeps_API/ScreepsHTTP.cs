@@ -27,7 +27,8 @@ namespace Screeps_API
         public IEnumerator<UnityWebRequestAsyncOperation> Request(string requestMethod, string path, RequestBody body = null,
             Action<string> onSuccess = null, Action onError = null, int timeout = 0, bool skipAuth = false)
         {
-            //Debug.Log(string.Format("HTTP: attempting {0} to {1}", requestMethod, path));
+            // TODO: all theese requests needs to be queued to not hit request limits
+            Debug.Log(string.Format("HTTP: attempting {0} to {1}", requestMethod, path));
             UnityWebRequest www;
             var fullPath = path.StartsWith("/api") ? ScreepsAPI.Cache.Address.Http(path) : path;
             if (requestMethod == UnityWebRequest.kHttpVerbGET)
