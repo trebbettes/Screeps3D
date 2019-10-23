@@ -59,7 +59,10 @@ namespace Assets.Scripts.Screeps3D
                 yield return new WaitForSeconds(5);
             }
 
-            ScreepsAPI.Http.Request("GET", $"/api/game/shards/info", null, (jsonShardInfo) => // This should probably be stored on connect, depending on what PS returns here.
+            // Should probably do this lookup on connect
+            if (ScreepsAPI.Cache.MMO)
+            {
+                ScreepsAPI.Http.Request("GET", $"/api/game/shards/info", null, (jsonShardInfo) =>
                 {
                     // tickrates and such, what about private servers?
                     var shardInfo = new JSONObject(jsonShardInfo);
@@ -70,6 +73,23 @@ namespace Assets.Scripts.Screeps3D
                         _shardInfo.Add(new ShardInfo(shard));
                     }
                 });
+            }
+            else
+            {
+                // PS => /api/game/tick => { "ok": 1, "tick": 1234 }
+                ScreepsAPI.Http.Request("GET", $"/api/game/tick", null, (jsonTickInfo) =>
+                {
+                    var info = new JSONObject(jsonTickInfo);
+
+                    var shard = new JSONObject();
+                    shard.AddField("tick", info["tick"].n);
+
+                    _shardInfo.Add(new ShardInfo(shard));
+                });
+            }
+            
+            // also it seems like when we get a 404, it keeps trying to call the endpoint due to the "fail" retry logic.
+            
         }
 
         private IEnumerator GetNukes()
@@ -84,7 +104,7 @@ namespace Assets.Scripts.Screeps3D
                     yield return new WaitForSeconds(5);
                 }
 
-                NotifyText.Message("SCANNING FOR NUKES!", Color.red);
+                //NotifyText.Message("SCANNING FOR NUKES!", Color.red);
 
                 // We might have an issue if people use custom shard names, so we can't use shardName, because playerposition shardname is shardX
                 var shardIndex = PlayerPosition.Instance.ShardLevel;
@@ -99,9 +119,8 @@ namespace Assets.Scripts.Screeps3D
                     var nukesShardName = nukes.keys[shardIndex];
                     var shardName = ScreepsAPI.Cache.MMO ? nukesShardName : $"shard{shardIndex}";
                     var shardNukes = nukes[nukesShardName].list;
-                    NotifyText.Message($"{nukesShardName} has {shardNukes.Count} nukes!", Color.red);
-                    Debug.LogWarning(shardNukes.ToString());
-
+                    //NotifyText.Message($"{nukesShardName} has {shardNukes.Count} nukes!", Color.red);
+                    Debug.Log($"{nukesShardName} has {shardNukes.Count} nukes!");
                     var time = ScreepsAPI.Time;
 
 
@@ -132,14 +151,19 @@ namespace Assets.Scripts.Screeps3D
 
                                 // TODO: overlay.Unpack?
 
-                                // TODO: should probably not be doing this everytime we get nuke data, if it is already initialized?
-                                overlay.LaunchRoom = RoomManager.Instance.Get(nuke["launchRoomName"].str, shardName);
-                                overlay.ImpactRoom = RoomManager.Instance.Get(nuke["room"].str, shardName);
-                                overlay.ImpactPosition = PosUtility.Convert(nuke, overlay.ImpactRoom);
+                                if (overlay.LaunchRoom == null)
+                                {
+                                    overlay.LaunchRoom = RoomManager.Instance.Get(nuke["launchRoomName"].str, shardName);
 
+                                }
+
+                                if (overlay.ImpactRoom == null)
+                                {
+                                    overlay.ImpactRoom = RoomManager.Instance.Get(nuke["room"].str, shardName);
+                                    overlay.ImpactPosition = PosUtility.Convert(nuke, overlay.ImpactRoom);
+                                }
 
                                 var nukeLandTime = nuke["landTime"];
-
 
                                 var landingTime = nukeLandTime.IsNumber ? (long)nukeLandTime.n : long.Parse(nukeLandTime.str.Replace("\"", ""));
 
@@ -179,11 +203,6 @@ namespace Assets.Scripts.Screeps3D
 
                             if (!this.nukesInitialized) { this.nukesInitialized = true; }
                         });
-
-
-
-
-                    // TODO: launch detected events
 
 
                     /* Example

@@ -69,6 +69,7 @@ namespace Screeps3D.World.Views
 
             gameObject.name = $"nukeMissile:{this.Overlay.Id}:{Overlay?.LaunchRoom?.Name}->{Overlay?.ImpactRoom?.Name} {progress * 100}%";
 
+            // explosion progress check should be landTime and current tick
             if (progress >= 1f && !nukeExploded)
             {
                 // TODO: nuke effect should be slower, and last longer, when you wait 50k ticks for an explosion, it should be GRAND!!!
