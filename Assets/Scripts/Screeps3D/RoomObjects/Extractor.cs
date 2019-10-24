@@ -14,7 +14,7 @@ namespace Screeps3D.RoomObjects
         "hitsMax":500,
         "cooldown":0
     }*/
-    public class Extractor : Structure, ICooldownObject
+    public class Extractor : OwnedStructure, ICooldownObject, IOwnedObject
     {
         public float Cooldown { get; set; }
 

@@ -31,6 +31,11 @@ namespace Screeps3D
         public const string TypeRoad = "road";
         public const string TypeObserver = "observer";
         public const string TypeExtractor = "extractor";
+        public const string TypeFactory = "factory";
+        public const string TypeDeposit = "deposit";
+        public const string TypeRuin = "ruin";
+        public const string TypeInvaderCore = "invadercore";
+        
 
 
 
