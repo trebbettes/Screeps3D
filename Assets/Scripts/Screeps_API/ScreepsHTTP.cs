@@ -60,6 +60,8 @@ namespace Screeps_API
             {
                 if (outcome.isNetworkError || outcome.isHttpError)
                 {
+                    // TODO: rate limit https://github.com/screepers/node-screeps-api/blob/4e15d49c45e9b5cc3808122db6597c2d45537cb5/src/RawAPI.js#L389-L405
+
                     NotifyText.Message(string.Format("HTTP: error ({1}), reason: {0}", outcome.error,
                         outcome.responseCode));
                     Debug.Log(string.Format("HTTP: error ({1}), reason: {0}", outcome.error, outcome.responseCode));
