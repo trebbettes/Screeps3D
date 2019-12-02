@@ -19,5 +19,22 @@ namespace Screeps3D.World.Views
         {
             View = WorldViewFactory.GetInstance(this);
         }
+
+        private void OnFinishedAnimation(bool isVisible)
+        {
+            if (isVisible)
+                return;
+
+            ////foreach (var component in components)
+            ////{
+            ////    component.Unload(RoomObject);
+            ////}
+
+            ////RoomObject.OnShow -= Show;
+            ////RoomObject.DetachView();
+            View = null;
+            WorldViewFactory.Instance.AddToPool(this);
+            ////RoomObject = null;
+        }
     }
 }

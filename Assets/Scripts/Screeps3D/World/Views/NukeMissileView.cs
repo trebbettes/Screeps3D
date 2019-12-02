@@ -73,8 +73,9 @@ namespace Screeps3D.World.Views
             if (progress >= 1f && !nukeExploded)
             {
                 // TODO: nuke effect should be slower, and last longer, when you wait 50k ticks for an explosion, it should be GRAND!!!
-                EffectsUtility.NukeExplosition(Overlay.ImpactPosition);
+                EffectsUtility.NukeExplosion(Overlay.ImpactPosition);
                 nukeExploded = true;
+                arcRenderer.enabled = false;
             }
 
         }

@@ -53,7 +53,7 @@ namespace Screeps3D.Effects
         /// Render a nuke explosion at target
         /// </summary>
         /// <param name="position"></param>
-        public static void NukeExplosition(Vector3 position)
+        public static void NukeExplosion(Vector3 position)
         {
             var go = PoolLoader.Load(NukeExplosionEffect.PATH);
             var effect = go.GetComponent<NukeExplosionEffect>();

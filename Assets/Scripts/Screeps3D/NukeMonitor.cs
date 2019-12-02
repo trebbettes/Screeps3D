@@ -60,7 +60,7 @@ namespace Assets.Scripts.Screeps3D
             }
 
             // Should probably do this lookup on connect
-            if (ScreepsAPI.Cache.MMO)
+            if (ScreepsAPI.Cache.Official)
             {
                 ScreepsAPI.Http.Request("GET", $"/api/game/shards/info", null, (jsonShardInfo) =>
                 {
@@ -117,7 +117,7 @@ namespace Assets.Scripts.Screeps3D
                     var status = obj["ok"];
                     var nukes = obj["nukes"];
                     var nukesShardName = nukes.keys[shardIndex];
-                    var shardName = ScreepsAPI.Cache.MMO ? nukesShardName : $"shard{shardIndex}";
+                    var shardName = ScreepsAPI.Cache.Official? nukesShardName : $"shard{shardIndex}";
                     var shardNukes = nukes[nukesShardName].list;
                     //NotifyText.Message($"{nukesShardName} has {shardNukes.Count} nukes!", Color.red);
                     Debug.Log($"{nukesShardName} has {shardNukes.Count} nukes!");
@@ -177,6 +177,7 @@ namespace Assets.Scripts.Screeps3D
                                 var shard = _shardInfo[shardIndex];
                                 if (shard != null && shard.AverageTick.HasValue)
                                 {
+                                    // TODO: move this to a view component?
                                     var tickRate = shard.AverageTick.Value;
 
                                     var ticksLeft = landingTime - time; // eta
@@ -293,7 +294,5 @@ namespace Assets.Scripts.Screeps3D
         //    if (OnShow != null)
         //        OnShow(this, true);
         //}
-
-
     }
 }

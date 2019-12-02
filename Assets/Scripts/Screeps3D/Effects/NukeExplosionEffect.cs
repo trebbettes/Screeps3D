@@ -13,7 +13,7 @@ namespace Screeps3D.Effects
         [SerializeField] private ParticleSystem nukeExplosionEffect;
 
 
-        private const float _spawnDuration = 10;
+        private const float _spawnDuration = 30;
         private float _time;
         private Vector3 _position;
         internal void Load(Vector3 position)
