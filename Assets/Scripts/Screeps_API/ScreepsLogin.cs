@@ -277,8 +277,8 @@ namespace Screeps_API
 
                     UpdateServerList();
                 };
-                // TODO: silent, make it silent so no notification is made on timeout.
-                var stuff = ScreepsAPI.Http.GetVersion(queryServerInfoCallback, queryServerInfoErrorCallback);
+
+                var stuff = ScreepsAPI.Http.GetVersion(queryServerInfoCallback, queryServerInfoErrorCallback, noNotification: true);
                 //stuff.Current
             };
 
