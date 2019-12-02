@@ -35,7 +35,7 @@ namespace Screeps_API
 
         private ServerListTableViewController _serverListTableViewController;
 
-        internal List<IServerListProvider> serverListProviders = new List<IServerListProvider>();
+        private List<IServerListProvider> serverListProviders = new List<IServerListProvider>();
 
         private bool editServer = false;
 
@@ -76,7 +76,6 @@ namespace Screeps_API
         {
             editServer = true;
             UpdateFieldVisibility();
-
         }
 
         private void OnRemoveServer()
@@ -116,12 +115,12 @@ namespace Screeps_API
                 return;
             }
 
-            var server = new ServerCache();
-            server.Address.HostName = input;
-            server.Address.Port = "21025";
+            var server = new ServerCache
+                {Type = SourceProviderType.Custom, Address = {HostName = input, Port = "21025"}};
 
             // split/parse http url and port and assign properly e.g. http://screeps.reggaemuffin.me:21025
-            var urlPattern = @"(?<protocol>http(?:s?))?(?:\:\/\/)?(?<hostname>(?:[\w]+\.)+[a-zA-Z]+)(?::(?<port>\d{1,5}))?";
+            var urlPattern =
+                @"(?<protocol>http(?:s?))?(?:\:\/\/)?(?<hostname>(?:[\w]+\.)+[a-zA-Z]+)(?::(?<port>\d{1,5}))?";
             var match = Regex.Match(input, urlPattern);
 
             if (match.Success)
@@ -146,7 +145,7 @@ namespace Screeps_API
                     server.Address.Port = port;
                 }
             }
-            
+
             _servers.Add(server);
             OnServerChange(_servers.IndexOf(server));
             UpdateServerList();
@@ -158,7 +157,6 @@ namespace Screeps_API
             int serverIndex = _servers.IndexOf(server);
             //_serverSelect.value = serverIndex; // Updates dropdown
             OnServerChange(serverIndex);
-
         }
 
         private void OnServerChange(int serverIndex)
@@ -202,20 +200,22 @@ namespace Screeps_API
             }
 
             var selectedServer = _servers[_serverIndex];
-            var isPublic = selectedServer.MMO;
+            var isPublic = selectedServer.Official;
 
             //_ssl.gameObject.SetActive(!isPublic);
             //_port.gameObject.SetActive(!isPublic);
 
-            var showCredentialInput = string.IsNullOrEmpty(!isPublic ? selectedServer.Credentials.Email : selectedServer.Credentials.Token) || editServer;
+            var showCredentialInput =
+                string.IsNullOrEmpty(!isPublic ? selectedServer.Credentials.Email : selectedServer.Credentials.Token) ||
+                editServer;
 
             _username.gameObject.SetActive(!isPublic && showCredentialInput);
             _password.gameObject.SetActive(!isPublic && showCredentialInput);
             _token.gameObject.SetActive(isPublic && showCredentialInput);
 
-            _removeServer.gameObject.SetActive(!selectedServer.MMO);
+            _removeServer.gameObject.SetActive(!selectedServer.Official);
 
-            if (!isPublic && (string.IsNullOrEmpty(selectedServer.Address.Port)|| editServer))
+            if (!isPublic && (string.IsNullOrEmpty(selectedServer.Address.Port) || editServer))
             {
                 _port.gameObject.SetActive(true);
             }
@@ -223,7 +223,6 @@ namespace Screeps_API
             {
                 _port.gameObject.SetActive(false);
             }
-
         }
 
         private void UpdateFieldContent()
@@ -266,8 +265,7 @@ namespace Screeps_API
                     server.Online = true;
                     // TODO: timestamp of online status?
                     server.Users = users;
-                    server.Version = "v" + (server.MMO ? package.n.ToString() : packageVersion.str);
-
+                    server.Version = "v" + (server.Official ? package != null ? package.n.ToString() : string.Empty : packageVersion.str);
                     UpdateServerList();
                 };
 
@@ -277,8 +275,8 @@ namespace Screeps_API
 
                     UpdateServerList();
                 };
-                // TODO: silent, make it silent so no notification is made on timeout.
-                var stuff = ScreepsAPI.Http.GetVersion(queryServerInfoCallback, queryServerInfoErrorCallback);
+
+                var stuff = ScreepsAPI.Http.GetVersion(queryServerInfoCallback, queryServerInfoErrorCallback, noNotification: true);
                 //stuff.Current
             };
 
@@ -290,16 +288,16 @@ namespace Screeps_API
 
             foreach (var provider in serverListProviders)
             {
-                provider.Load((IEnumerable<ServerCache> servers) =>
+                provider.Load(servers =>
                 {
                     foreach (var server in servers)
                     {
                         if (provider.MergeWithCache)
                         {
                             var cachedServer = _servers.SingleOrDefault(cache =>
-                            cache.Address.HostName == server.Address.HostName
-                            && cache.Address.Path == server.Address.Path
-                            && cache.Address.Port == server.Address.Port);
+                                cache.Address.HostName == server.Address.HostName
+                                && cache.Address.Path == server.Address.Path
+                                && cache.Address.Port == server.Address.Port);
 
                             if (cachedServer == null)
                             {
@@ -307,8 +305,13 @@ namespace Screeps_API
                             }
                             else
                             {
+                                
                                 cachedServer.Name = server.Name;
                                 cachedServer.LikeCount = server.LikeCount;
+
+                                //Backwards compatibility
+                                cachedServer.Official = server.Official;
+                                cachedServer.Type = server.Type;
                             }
                         }
                         else
@@ -322,7 +325,10 @@ namespace Screeps_API
                     }
 
                     var sortedCache = new CacheList();
-                    sortedCache.AddRange(_servers.OrderByDescending(s => s.MMO).ThenBy(s => s.Address.Path).ThenBy(s => s.Address.HostName));
+                    sortedCache.AddRange(_servers.OrderByDescending(s => s.Type == SourceProviderType.Official)
+                        .ThenByDescending(s => s.LikeCount)
+                        .ThenBy(s => s.Address.Path)
+                        .ThenBy(s => s.Address.HostName));
                     _servers = sortedCache;
 
                     // preselecting selected server might be an issue when the selected server status is not saved for like SS3
@@ -409,5 +415,7 @@ namespace Screeps_API
 
     // The Binary Formatter checks for the serializable attribute, thus this workaround
     [Serializable]
-    public class CacheList : List<ServerCache> { }
+    public class CacheList : List<ServerCache>
+    {
+    }
 }
