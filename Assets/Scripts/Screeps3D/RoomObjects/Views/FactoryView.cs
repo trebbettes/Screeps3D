@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+﻿using Common;
+using UnityEngine;
 
 namespace Screeps3D.RoomObjects.Views
 {
     public class FactoryView : MonoBehaviour, IObjectViewComponent
     {
-        [SerializeField] private Renderer rend;
-        [SerializeField] private Animator anim;
+        [SerializeField] private ScaleAxes _energyDisplay;
 
         private Factory _factory;
         // TODO: we also need the mineral on the location to get regen time if we want to do something specific in regards to that
@@ -17,10 +17,12 @@ namespace Screeps3D.RoomObjects.Views
         public void Load(RoomObject roomObject)
         {
             _factory = roomObject as Factory;
+            AdjustScale();
         }
 
         public void Delta(JSONObject data)
         {
+            AdjustScale();
         }
 
         public void Unload(RoomObject roomObject)
@@ -34,6 +36,10 @@ namespace Screeps3D.RoomObjects.Views
                 return;
             
             // TODO: actions, like creep
+        }
+        private void AdjustScale()
+        {
+            _energyDisplay.SetVisibility(_factory.TotalResources / _factory.TotalCapacity);
         }
     }
 }
