@@ -23,7 +23,7 @@ public class ServerInfo : MonoBehaviour
 
     private void ScreepsAPI_OnTick(long time)
     {
-        Debug.Log($"Tick: {time}");
+        //Debug.Log($"Tick: {time}");
         var timeSpan = DateTime.Now - lastTick;
         var ticksPerSecond = Math.Round(1f / timeSpan.TotalSeconds, 3);
         this.TickRate.SetText($"{ticksPerSecond} ticks / s");

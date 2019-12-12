@@ -90,7 +90,7 @@ namespace Screeps_API
         }
         private void GetShardSetTime(string obj)
         {
-            Debug.Log(obj);
+            //Debug.Log(obj);
             var worldStartRooms = new JSONObject(obj)["room"];
             if (worldStartRooms != null)
             {
@@ -104,12 +104,12 @@ namespace Screeps_API
 
         private void SetTime(string obj)
         {
-            Debug.Log(obj);
+            //Debug.Log(obj);
             var timeData = new JSONObject(obj)["time"];
             if (timeData != null)
             {
                 Time = (int) timeData.n;
-                Debug.Log($"time/tick is now {Time}");
+                //Debug.Log($"time/tick is now {Time}");
             }
         }
 
