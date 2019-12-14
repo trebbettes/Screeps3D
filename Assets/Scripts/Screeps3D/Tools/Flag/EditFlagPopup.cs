@@ -18,6 +18,9 @@ namespace Screeps3D.Tools.Selection
         private bool _newFlag;
         private Flag _flag;
 
+        public Action OnFlagCreated;
+
+        public Action OnCancel;
 
         private void Start()
         {
@@ -28,10 +31,19 @@ namespace Screeps3D.Tools.Selection
             _primaryFlagColor.OnColorChange += PrimaryColorChange;
             _secondaryFlagColor.OnColorChange += SecondaryColorChange;
         }
+        private void OnDestroy()
+        {
+            _cancelButton.onClick.RemoveListener(CancelClicked);
+            _okButton.onClick.RemoveListener(OkClicked);
+            _flagName.onDeselect.RemoveListener(FlagNameDeselect);
+
+            _primaryFlagColor.OnColorChange -= PrimaryColorChange;
+            _secondaryFlagColor.OnColorChange -= SecondaryColorChange;
+        }
 
         public void Load(Flag flag, bool newFlag = false)
         {
-            Debug.Log($"flag loaded create {newFlag}=> {_flag?.Room?.ShardName}/{_flag?.Room?.RoomName}");
+            ////Debug.Log($"flag loaded create {newFlag}=> {_flag?.Room?.ShardName}/{_flag?.Room?.RoomName}");
             _flag = flag;
             _newFlag = newFlag;
 
@@ -39,7 +51,7 @@ namespace Screeps3D.Tools.Selection
 
             if (newFlag)
             {
-                // TODO: generate new valid name.
+                GenerateUniqueFlagName();
             }
             else
             {
@@ -50,13 +62,36 @@ namespace Screeps3D.Tools.Selection
             }
         }
 
-        private void OnEnable()
+        private void GenerateUniqueFlagName()
+        {
+            ScreepsAPI.Http.GenerateUniqueFlagName(_flag.Room.ShardName, onSuccess: jsonString =>
+            {
+                var result = new JSONObject(jsonString);
+
+                var ok = result["ok"];
+
+                if (ok.n == 1)
+                {
+                    var flagName = result["name"];
+                    _flagName.text = flagName.str;
+                    _flag.Name = _flagName.text;
+                }
+            });
+        }
+
+        public void Save()
         {
             if (_newFlag)
             {
-                Debug.Log("new flag, should generate unique name");
-                Debug.Log($"{_flag?.Room?.ShardName}/{_flag?.Room?.RoomName}");
-                ScreepsAPI.Http.GenerateUniqueFlagName(_flag.Room.ShardName, onSuccess: jsonString =>
+                ScreepsAPI.Http.CreateFlag(
+                    _flag.Room.ShardName,
+                    _flag.Room.RoomName,
+                    _flag.X,
+                    _flag.Y,
+                    _flag.Name,
+                    _flag.PrimaryColor,
+                    _flag.SecondaryColor,
+                    onSuccess: jsonString =>
                 {
                     var result = new JSONObject(jsonString);
 
@@ -64,22 +99,13 @@ namespace Screeps3D.Tools.Selection
 
                     if (ok.n == 1)
                     {
-                        var flagName = result["name"];
-                        _flagName.text = flagName.str;
+                        OnFlagCreated?.Invoke();
+                    }
+                    else
+                    {
+                        // error
                     }
                 });
-            }
-        }
-
-        public void Save()
-        {
-            // TODO: call api to save flag changes
-            if (_newFlag)
-            {
-                // POST https://screeps.com/api/game/create-flag
-                /*body
-                 * {"x":29,"y":27,"name":"Flag1","color":10,"secondaryColor":10,"room":"E19S38","shard":"shard3"}
-                 */
             }
             else
             {
@@ -116,12 +142,12 @@ namespace Screeps3D.Tools.Selection
 
         private void CancelClicked()
         {
-            Debug.Log("Cancel Clicked");
+            OnCancel?.Invoke();
         }
 
         private void OkClicked()
         {
-            Debug.Log("Ok Clicked");
+            Save();
         }
     }
 }

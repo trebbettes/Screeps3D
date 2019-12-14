@@ -27,11 +27,26 @@ namespace Screeps3D.Tools.Selection
             _flag.PrimaryColor = (int)Constants.FlagColor.White;
             _flag.SecondaryColor = (int)Constants.FlagColor.White;
 
-            _editFlagPopup.Load(_flag, true);
+            _editFlagPopup.OnFlagCreated += FlagCreated;
+            _editFlagPopup.OnCancel += CancelFlagCreation;
         }
 
-        private void OnEnable()
+        private void OnDestroy()
         {
+            _editFlagPopup.OnFlagCreated -= FlagCreated;
+            _editFlagPopup.OnCancel -= CancelFlagCreation;
+        }
+
+        private void CancelFlagCreation()
+        {
+            _isPlacing = false;
+            ToggleEditFlagPopup(false);
+        }
+
+        private void FlagCreated()
+        {
+            _isPlacing = false;
+            ToggleEditFlagPopup(false);
         }
 
         private void ToggleEditFlagPopup(bool? active = null)
@@ -39,6 +54,11 @@ namespace Screeps3D.Tools.Selection
             if (!active.HasValue)
             {
                 active = _editFlagPopup.gameObject.activeSelf;
+            }
+
+            if (active.Value)
+            {
+                _editFlagPopup.Load(_flag, true);
             }
 
             _editFlagPopup.gameObject.SetActive(active.Value);
@@ -128,10 +148,8 @@ namespace Screeps3D.Tools.Selection
                 
             }
 
-            if (_isPlacing && Input.GetMouseButtonUp(0))
+            if (_isPlacing && Input.GetMouseButtonUp(0) && !InputMonitor.OverUI)
             {
-                _isPlacing = false;
-
                 ToggleEditFlagPopup(true);
             }
         }

@@ -65,6 +65,7 @@ namespace Screeps3D
             {"upgradeController", false}
         };
         
+        // TODO: this kinda belongsin Screeps_API theese flag colors are API specific.
         public enum FlagColor
         {
             Red = 1,
