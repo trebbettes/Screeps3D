@@ -205,5 +205,20 @@ namespace Screeps_API
 
             return Request("POST", "/api/game/map-stats", body, onSuccess: onSuccess, noNotification: noNotification);
         }
+
+        public IEnumerator<UnityWebRequestAsyncOperation> GenerateUniqueFlagName(string shard, Action<string> onSuccess, bool noNotification = false)
+        {
+            // POST https://screeps.com/api/game/gen-unique-flag-name
+            /* body
+             * {"shard":"shard3"}
+             * response
+             * {"ok":1,"name":"Flag1"}
+             */
+            var body = new RequestBody();
+            body.AddField("shard", shard);
+
+            return Request("POST", "/api/game/gen-unique-flag-name", body, onSuccess: onSuccess, noNotification: noNotification);
+
+        }
     }
 }

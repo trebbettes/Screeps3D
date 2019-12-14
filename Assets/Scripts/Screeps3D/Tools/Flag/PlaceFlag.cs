@@ -22,15 +22,26 @@ namespace Screeps3D.Tools.Selection
 
         private void Start()
         {
+            Debug.Log("PlaceFlag Start");
             _flag = new Flag("PlaceFlag");
             _flag.PrimaryColor = (int)Constants.FlagColor.White;
             _flag.SecondaryColor = (int)Constants.FlagColor.White;
+
+            _editFlagPopup.Load(_flag, true);
         }
 
         private void OnEnable()
         {
-            _editFlagPopup.Load(_flag, true);
-            _editFlagPopup.gameObject.SetActive(true);
+        }
+
+        private void ToggleEditFlagPopup(bool? active = null)
+        {
+            if (!active.HasValue)
+            {
+                active = _editFlagPopup.gameObject.activeSelf;
+            }
+
+            _editFlagPopup.gameObject.SetActive(active.Value);
         }
 
         private void OnDisable()
@@ -40,7 +51,7 @@ namespace Screeps3D.Tools.Selection
                 _flag.HideObject(_flag.Room);
             }
 
-            _editFlagPopup.gameObject.SetActive(false);
+            ToggleEditFlagPopup(false);
         }
 
         ////public void Highlight()
@@ -91,20 +102,20 @@ namespace Screeps3D.Tools.Selection
 
                     var room = roomView.Room;
 
-                    //Debug.Log(room.Name);
-                    //Debug.Log(room.Position);
-                    //Debug.Log(room.Position - rayTarget.Value.point);
+                    ////Debug.Log(room.Position);
+                    ////Debug.Log(room.Position - rayTarget.Value.point);
                     var roomPosition = PosUtility.ConvertToXY(rayTarget.Value.point, room);
                     if (roomPosition.x != _flag.X || roomPosition.y != _flag.Y)
                     {
-                        Debug.Log(roomPosition);
-                        Debug.Log($"flag: {_flag.X}, {_flag.Y} => {_flag.Position} == {PosUtility.Convert(_flag.X, _flag.Y, room)}");
-                        Debug.Log("placeflag delta");
+                        ////Debug.Log(roomPosition);
+                        ////Debug.Log($"flag: {_flag.X}, {_flag.Y} => {_flag.Position} == {PosUtility.Convert(_flag.X, _flag.Y, room)}");
+                        ////Debug.Log("placeflag delta");
                         _flag.Delta(new JSONObject($"{{\"x\":{roomPosition.x},\"y\":{roomPosition.y}}}"), room);
 
                         // Move flag, flags normally don't move.
                         if (_flag.View != null)
                         {
+                            ////Debug.Log($"{_flag?.Room?.ShardName}/{_flag?.Room?.RoomName}");
                             _flag.View.transform.localPosition = _flag.Position;
                         }
                     }
@@ -114,32 +125,14 @@ namespace Screeps3D.Tools.Selection
             if (Input.GetMouseButtonDown(0) && !InputMonitor.OverUI)
             {
                 _isPlacing = true;
+                
             }
 
-            if (Input.GetMouseButtonUp(0))
+            if (_isPlacing && Input.GetMouseButtonUp(0))
             {
                 _isPlacing = false;
 
-                // TODO: pop up flag name and color ui, needs unique name, primary color and secondary color, see FlagView
-                // Constants.FlagColors 1..10
-
-                // POST https://screeps.com/api/game/gen-unique-flag-name
-                /* body
-                 * {"shard":"shard3"}
-                 * response
-                 * {"ok":1,"name":"Flag1"}
-                 */
-
-                // POST https://screeps.com/api/game/check-unique-flag-name
-                // Request: {"name":"Flag1","shard":"shard3"}
-                // Response: {"error":"name exists"} || {"ok":1}
-
-
-                // POST https://screeps.com/api/game/create-flag
-                /*body
-                 * {"x":29,"y":27,"name":"Flag1","color":10,"secondaryColor":10,"room":"E19S38","shard":"shard3"}
-                 */
-
+                ToggleEditFlagPopup(true);
             }
         }
 
