@@ -99,13 +99,12 @@ namespace Screeps3D.Tools.Selection
 
         private void PrimaryColorChange(Constants.FlagColor flagColor)
         {
-            Debug.Log("PrimaryColorChange");
+            _flag.PrimaryColor = (int)flagColor;
         }
         private void SecondaryColorChange(Constants.FlagColor flagColor)
         {
-            Debug.Log("SecondaryColorChange");
+            _flag.SecondaryColor = (int)flagColor;
         }
-
 
         private void FlagNameDeselect(string text)
         {
