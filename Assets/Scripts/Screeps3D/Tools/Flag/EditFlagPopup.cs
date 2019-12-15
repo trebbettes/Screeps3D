@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 namespace Screeps3D.Tools.Selection
 {
+    // TODO: flag templates, common used colors / configurations and start names might be useful
     public class EditFlagPopup : MonoBehaviour
     {
         [SerializeField] private TMP_InputField _flagName;

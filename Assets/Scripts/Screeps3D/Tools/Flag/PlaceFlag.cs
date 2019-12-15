@@ -104,7 +104,7 @@ namespace Screeps3D.Tools.Selection
 
         private void Update()
         {
-            if (!InputMonitor.OverUI)
+            if (!InputMonitor.OverUI && !_isPlacing)
             {
                 var rayTarget = Rayprobe();
                 //SelectionOutline.DrawOutline(rayTarget);
@@ -142,14 +142,15 @@ namespace Screeps3D.Tools.Selection
                 }
             }
 
-            if (Input.GetMouseButtonDown(0) && !InputMonitor.OverUI)
+            ////if (Input.GetMouseButtonDown(0) && !InputMonitor.OverUI)
+            ////{
+            ////    _isPlacing = true;
+                
+            ////}
+
+            if (!_isPlacing && Input.GetMouseButtonUp(0) && !InputMonitor.OverUI)
             {
                 _isPlacing = true;
-                
-            }
-
-            if (_isPlacing && Input.GetMouseButtonUp(0) && !InputMonitor.OverUI)
-            {
                 ToggleEditFlagPopup(true);
             }
         }
