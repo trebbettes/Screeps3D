@@ -139,6 +139,7 @@ namespace Screeps3D.Tools.Selection
             // POST https://screeps.com/api/game/check-unique-flag-name
             // Request: {"name":"Flag1","shard":"shard3"}
             // Response: {"error":"name exists"} || {"ok":1}
+            _flag.Name = _flagName.text;
         }
 
         private void CancelClicked()
