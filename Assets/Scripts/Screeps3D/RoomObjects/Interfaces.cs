@@ -117,4 +117,10 @@ namespace Screeps3D.RoomObjects
         string DestinationRoom { get; set; }
         string DestinationPosition { get; set; }
     }
+
+    internal interface ILevel
+    {
+        int Level { get; set; }
+        int LevelMax { get; set; }
+    }
 }
