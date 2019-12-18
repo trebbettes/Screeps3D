@@ -69,8 +69,9 @@ namespace Screeps3D
                 {
                     Debug.LogException(ex);
                 }
-
-                yield return new WaitForSeconds(30);
+                // https://docs.screeps.com/auth-tokens.html#Rate-Limiting
+                // POST /api/game/map-stats	60 / hour
+                yield return new WaitForSeconds(60);
             }
         }
 
