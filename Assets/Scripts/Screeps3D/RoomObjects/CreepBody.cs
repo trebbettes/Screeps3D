@@ -66,13 +66,15 @@ namespace Screeps3D.RoomObjects
         internal void Unpack(JSONObject data, bool initial)
         {
             var bodyObj = data["body"];
-            if (bodyObj == null)
+            if (bodyObj == null || bodyObj.IsNull)
+            {
                 return;
+            }
 
             ////Debug.Log(initial);
             ////Debug.Log(data.ToString());
 
-            if (initial)
+            if (initial && bodyObj.IsArray)
             {
                 Parts.Clear();
                 foreach (var partObj in bodyObj.list)
@@ -82,7 +84,7 @@ namespace Screeps3D.RoomObjects
                     Parts.Add(bodyPart);
                 }
             }
-            else
+            else if (bodyObj.IsObject)
             {
                 foreach (var key in bodyObj.keys)
                 {
