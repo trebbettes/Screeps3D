@@ -48,6 +48,17 @@ namespace Screeps3D.Effects
             var effect = go.GetComponent<TeleportEffect>();
             effect.Load(position);
         }
+
+        /// <summary>
+        /// Render an electric explosion around a creep
+        /// </summary>
+        /// <param name="origin"></param>
+        public static void ElectricExplosion(RoomObject origin)
+        {
+            var go = PoolLoader.Load(ElectricExplosionEffect.PATH);
+            var effect = go.GetComponent<ElectricExplosionEffect>();
+            effect.Load(origin); // TODO: need to unload if creep exists / portals
+        }
     }
     
     public class BeamConfig
