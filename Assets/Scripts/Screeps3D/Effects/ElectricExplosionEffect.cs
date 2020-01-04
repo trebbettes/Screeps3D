@@ -18,17 +18,18 @@ namespace Screeps3D.Effects
         public void Load(RoomObject origin)
         {
             // Add Effect as child
-            if (origin.View != null)
-            {
-                electricExplosion.Stop();
-                gameObject.transform.parent = origin.View.transform; // attach to creep
-                gameObject.transform.localPosition = Vector3.zero; // center it
-
-                StartCoroutine(DisplayElectricalExplosion());
-            }
+            //if (origin.View != null)
+            //{
+            //electricExplosion.Stop();
+            //gameObject.transform.parent = origin.View.transform; // attach to creep
+            //gameObject.transform.localPosition = Vector3.zero; // center it
+            _time = 0f;
+            _position = origin.Position;
+            StartCoroutine(DisplayElectricalExplosion());
+            //}
         }
 
-        private const float _explosionDuration = 3;
+        private const float _explosionDuration = 2;
         private float _time;
         private Vector3 _position;
         internal void Load(Vector3 position)
@@ -41,7 +42,7 @@ namespace Screeps3D.Effects
 
         private IEnumerator DisplayElectricalExplosion()
         {
-            //gameObject.transform.SetPositionAndRotation(_position, gameObject.transform.rotation);
+            gameObject.transform.SetPositionAndRotation(_position, gameObject.transform.rotation);
             electricExplosion.Play();
 
             while (_time < _explosionDuration)
@@ -52,7 +53,7 @@ namespace Screeps3D.Effects
             }
 
             electricExplosion.Stop();
-            gameObject.transform.parent = null;
+            //gameObject.transform.parent = null;
 
             PoolLoader.Return(PATH, gameObject);
         }
