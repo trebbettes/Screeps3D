@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 222706884622952592}
   - component: {fileID: 6987659005610094930}
   - component: {fileID: 6865168212739797340}
-  - component: {fileID: 8199956330927296909}
+  - component: {fileID: 8531850490829929971}
   m_Layer: 5
   m_Name: Buttons
   m_TagString: Untagged
@@ -87,8 +87,8 @@ MonoBehaviour:
   _height: 0
   _buttonPrefab: {fileID: 6225070627515979814, guid: 4a73b92101bf1e34788f00870eacb9c5,
     type: 3}
-  _buttonList: {fileID: 6987659005610094930}
---- !u!114 &8199956330927296909
+  _buttonList: {fileID: 8531850490829929971}
+--- !u!114 &8531850490829929971
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f84eeb7666c94d59b04e871e6c6f309a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _element: {fileID: 0}
+  _element: {fileID: 6865168212739797340}
   _spacing: 0
   _bottomPadding: 0
-  _autoFindElements: 1
+  _autoFindElements: 0

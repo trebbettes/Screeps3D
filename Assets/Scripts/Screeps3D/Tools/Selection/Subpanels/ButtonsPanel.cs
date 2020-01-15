@@ -11,8 +11,9 @@ namespace Screeps3D.Tools.Selection.Subpanels
 {
     public class ButtonsPanel : SelectionSubpanel
     {
+        public new const float LineHeight = 30;
         [SerializeField] private GameObject _buttonPrefab;
-        [SerializeField] private VerticalLayoutGroup _buttonList;
+        [SerializeField] private VerticalPanelGroup _buttonList;
 
         private IButtons _buttons;
         private RoomObject _roomObject;
@@ -38,12 +39,15 @@ namespace Screeps3D.Tools.Selection.Subpanels
 
             ClearButtons();
 
-            foreach (var button in _buttons.GetButtonActions())
+            //this.Rect.sizeDelta = Vector2.up; // reset height from previous  buttons
+            var actions = _buttons.GetButtonActions();
+                ////Height = actions.Count * LineHeight;
+            foreach (var button in actions)
             {
                 AddButtonToSelectionPanel(button, roomObject);
             }
         }
-        
+
         public override void Unload()
         {
             ClearButtons();
@@ -56,14 +60,19 @@ namespace Screeps3D.Tools.Selection.Subpanels
         private void ClearButtons()
         {
             Debug.Log($"clearing buttons {_buttonList.transform.childCount}");
+
             foreach (Transform child in _buttonList.transform)
             {
                 var button = child.gameObject.GetComponent<Button>();
-                button.onClick.RemoveAllListeners();
 
-                child.SetParent(null);
-                //child.parent = null;
-                PoolLoader.Return(_path, child.gameObject);
+                if (button != null)
+                {
+                    button.onClick.RemoveAllListeners();
+                    child.localPosition = Vector3.zero; // reset position
+                    child.SetParent(null);
+                    //child.parent = null;
+                    PoolLoader.Return(_path, child.gameObject);
+                }
             }
         }
 
@@ -74,13 +83,18 @@ namespace Screeps3D.Tools.Selection.Subpanels
             text.text = action.Text;
 
             var button = go.GetComponent<Button>();
-            button.onClick.AddListener(() => {
+            button.onClick.AddListener(() =>
+            {
                 var type = action.GetType();
                 var onClick = type.GetMethod("OnClick");
                 onClick.Invoke(action, new[] { roomObject });
             });
 
-            go.transform.SetParent(_buttonList.transform);
+            var element = go.GetComponent<VerticalPanelElement>();
+            element.TargetPos = 0;
+
+            _buttonList.AddElement(element);
+            ////go.transform.SetParent(_buttonList.transform);
 
         }
     }
