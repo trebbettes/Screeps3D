@@ -23,6 +23,9 @@ namespace Screeps3D.Tools.Selection
 
         public Action OnCancel;
 
+        private Constants.FlagColor _initialPrimaryColor;
+        private Constants.FlagColor _initialSecondaryColor;
+
         private void Start()
         {
             _cancelButton.onClick.AddListener(CancelClicked);
@@ -56,11 +59,16 @@ namespace Screeps3D.Tools.Selection
             }
             else
             {
+                _flag.PauseDeltaUpdates = true;
 
                 _flagName.text = flag.Name;
-                _primaryFlagColor.SetColor((Constants.FlagColor)_flag.PrimaryColor);
-                _secondaryFlagColor.SetColor((Constants.FlagColor)_flag.SecondaryColor);
             }
+
+            _initialPrimaryColor = (Constants.FlagColor)_flag.PrimaryColor;
+            _initialSecondaryColor = (Constants.FlagColor)_flag.SecondaryColor;
+
+            _primaryFlagColor.SetColor(_initialPrimaryColor);
+            _secondaryFlagColor.SetColor(_initialSecondaryColor);
         }
 
         private void GenerateUniqueFlagName()
@@ -110,6 +118,7 @@ namespace Screeps3D.Tools.Selection
             }
             else
             {
+                _flag.PauseDeltaUpdates = false;
                 // Update flag?
                 // TODO: we can change flag position as well, how do we trigger flag movement when we edit an existing flag?
 
@@ -144,6 +153,10 @@ namespace Screeps3D.Tools.Selection
 
         private void CancelClicked()
         {
+            _flag.PrimaryColor = (int)_initialPrimaryColor;
+            _flag.SecondaryColor = (int)_initialSecondaryColor;
+
+            _flag.PauseDeltaUpdates = false;
             OnCancel?.Invoke();
         }
 

@@ -63,6 +63,9 @@ namespace Screeps3D.Tools.Selection.Subpanels
 
             foreach (Transform child in _buttonList.transform)
             {
+                var element = child.GetComponent<VerticalPanelElement>();
+                _buttonList.RemoveElement(element);
+
                 var button = child.gameObject.GetComponent<Button>();
 
                 if (button != null)

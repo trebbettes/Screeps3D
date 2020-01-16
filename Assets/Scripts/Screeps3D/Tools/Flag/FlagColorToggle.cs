@@ -14,10 +14,15 @@ namespace Screeps3D.Tools.Selection
         public Constants.FlagColor SelectedColor { get; private set; }
         public Action<Constants.FlagColor> OnColorChange;
 
+        private bool initialized;
+
         private void Start()
         {
             foreach (Transform child in _colors.transform)
             {
+                var toggle = child.GetComponent<Toggle>();
+                toggle?.onValueChanged.RemoveAllListeners();
+
                 Destroy(child.gameObject);
             }
 
@@ -34,12 +39,26 @@ namespace Screeps3D.Tools.Selection
                 toggle.colors = colors;
 
                 toggle.name = ((int)color).ToString();
-
-                toggle.isOn = color == Constants.FlagColor.White;
+                toggle.isOn = color == SelectedColor;
+                this.ScaleToggleButton(toggle, toggle.isOn);
             }
+
+            initialized = true;
         }
 
         private void ToggleInput(Toggle toggle, bool isOn, Constants.FlagColor flagColor)
+        {
+            this.ScaleToggleButton(toggle, isOn);
+
+            if (isOn)
+            {
+                SelectedColor = flagColor;
+            }
+
+            OnColorChange?.Invoke(flagColor);
+        }
+
+        private void ScaleToggleButton(Toggle toggle, bool isOn)
         {
             if (!isOn)
             {
@@ -48,18 +67,22 @@ namespace Screeps3D.Tools.Selection
             }
 
             toggle.transform.localScale = new Vector3(1f, 1f, 1f);
+        }
 
-            SelectedColor = flagColor;
-
-            OnColorChange?.Invoke(flagColor);
+        private void Update()
+        {
+            
         }
 
         public void SetColor(Constants.FlagColor flagColor)
         {
+            SelectedColor = flagColor;
+
             foreach (Transform child in _colors.transform)
             {
-                if(child.gameObject.name == ((int)flagColor).ToString()) {
-                    var toggle = child.GetComponent<Toggle>();
+                var toggle = child.GetComponent<Toggle>();
+                if (toggle.name == ((int)flagColor).ToString())
+                {
                     toggle.isOn = true;
                     break;
                 }
