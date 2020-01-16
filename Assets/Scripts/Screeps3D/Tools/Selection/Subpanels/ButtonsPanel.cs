@@ -59,7 +59,7 @@ namespace Screeps3D.Tools.Selection.Subpanels
 
         private void ClearButtons()
         {
-            Debug.Log($"clearing buttons {_buttonList.transform.childCount}");
+            ////Debug.Log($"clearing buttons {_buttonList.transform.childCount}");
 
             foreach (Transform child in _buttonList.transform)
             {
@@ -95,6 +95,7 @@ namespace Screeps3D.Tools.Selection.Subpanels
 
             var element = go.GetComponent<VerticalPanelElement>();
             element.TargetPos = 0;
+            go.transform.localScale = Vector3.one;
 
             _buttonList.AddElement(element);
             ////go.transform.SetParent(_buttonList.transform);
