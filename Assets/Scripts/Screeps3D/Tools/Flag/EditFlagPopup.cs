@@ -21,6 +21,8 @@ namespace Screeps3D.Tools.Selection
 
         public Action OnFlagCreated;
 
+        public Action OnFlagColorChanged;
+
         public Action OnCancel;
 
         private Constants.FlagColor _initialPrimaryColor;
@@ -50,8 +52,6 @@ namespace Screeps3D.Tools.Selection
             ////Debug.Log($"flag loaded create {newFlag}=> {_flag?.Room?.ShardName}/{_flag?.Room?.RoomName}");
             _flag = flag;
             _newFlag = newFlag;
-
-            // TODO: store initial values so we can reset the flag on cancel.
 
             if (newFlag)
             {
@@ -108,7 +108,7 @@ namespace Screeps3D.Tools.Selection
 
                     if (ok.n == 1)
                     {
-                        OnFlagCreated?.Invoke();
+                        OnFlagColorChanged?.Invoke();
                     }
                     else
                     {
@@ -118,13 +118,34 @@ namespace Screeps3D.Tools.Selection
             }
             else
             {
-                _flag.PauseDeltaUpdates = false;
-                // Update flag?
-                // TODO: we can change flag position as well, how do we trigger flag movement when we edit an existing flag?
+                // TODO: if position has changed, we can just call createflag, no need to change color.
 
-                // POST https://screeps.com/api/game/change-flag-color
-                // Request: {"room":"E19S38","shard":"shard3","name":"Flag1","color":10,"secondaryColor":7}
-                // Response: {"ok":1,"result":{"n":1,"nModified":1,"ok":1},"connection":{"id":4,"host":"dhost3.srv.screeps.com","port":25270},"message":{"parsed":true,"index":75,"raw":{"type":"Buffer","data":[75,0,0,0,186,216,193,77,139,130,92,0,1,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,39,0,0,0,16,110,0,1,0,0,0,16,110,77,111,100,105,102,105,101,100,0,1,0,0,0,1,111,107,0,0,0,0,0,0,0,240,63,0]},"data":{"type":"Buffer","data":[75,0,0,0,186,216,193,77,139,130,92,0,1,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,39,0,0,0,16,110,0,1,0,0,0,16,110,77,111,100,105,102,105,101,100,0,1,0,0,0,1,111,107,0,0,0,0,0,0,0,240,63,0]},"bson":{},"opts":{"promoteLongs":true,"promoteValues":true,"promoteBuffers":false},"length":75,"requestId":1304549562,"responseTo":6062731,"responseFlags":8,"cursorId":"0","startingFrom":0,"numberReturned":1,"documents":[{"n":1,"nModified":1,"ok":1}],"cursorNotFound":false,"queryFailure":false,"shardConfigStale":false,"awaitCapable":true,"promoteLongs":true,"promoteValues":true,"promoteBuffers":false,"hashedName":"8cf87ebd96d4f56356284e048c6646c112baf617"}}
+                if ((int)_initialPrimaryColor != _flag.PrimaryColor || (int)_initialSecondaryColor != _flag.SecondaryColor)
+                {
+                    ScreepsAPI.Http.ChangeFlagColor(
+                        _flag.Room.ShardName,
+                        _flag.Room.RoomName,
+                        _flag.Name,
+                        _flag.PrimaryColor,
+                        _flag.SecondaryColor,
+                        onSuccess: jsonString =>
+                        {
+                            var result = new JSONObject(jsonString);
+
+                            var ok = result["ok"];
+
+                            if (ok.n == 1)
+                            {
+                                OnFlagCreated?.Invoke();
+                            }
+                            else
+                            {
+                            // error
+                        }
+                        });
+                }
+
+                _flag.PauseDeltaUpdates = false;
 
                 // moving flag seems to just call create flag again
                 //  POST https://screeps.com/api/game/create-flag
