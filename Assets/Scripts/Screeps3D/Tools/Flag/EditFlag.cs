@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common;
+using Screeps_API;
 using Screeps3D.Menus.Options;
 using Screeps3D.RoomObjects;
 using Screeps3D.RoomObjects.Views;
@@ -53,12 +54,38 @@ namespace Screeps3D.Tools.Selection
             _editFlagPopup.Load(flag);
         }
 
-        public void DeleteFlag()
+        public void DeleteFlag(Flag flag)
         {
+            // TODO: show confirmation dialog?
+            PlayerInput.AskQuestion($"Are you sure you want to delete\n{flag.Name}", (bool yes) => {
+                if (yes)
+                {
+                    ScreepsAPI.Http.RemoveFlag(
+                    flag.Room.ShardName,
+                    flag.Room.RoomName,
+                    flag.Name,
+                    onSuccess: jsonString =>
+                    {
+                        var result = new JSONObject(jsonString);
 
-            //  POST https://screeps.com/api/game/remove-flag
-            // request: {"room":"E19S38","shard":"shard3","name":"Flag2"}
-            // response: {"ok":1,"result":{"n":1,"nModified":1,"ok":1},"connection":{"id":8,"host":"dhost3.srv.screeps.com","port":25270},"message":{"parsed":true,"index":75,"raw":{"type":"Buffer","data":[75,0,0,0,142,100,226,151,150,40,22,2,1,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,39,0,0,0,16,110,0,1,0,0,0,16,110,77,111,100,105,102,105,101,100,0,1,0,0,0,1,111,107,0,0,0,0,0,0,0,240,63,0]},"data":{"type":"Buffer","data":[75,0,0,0,142,100,226,151,150,40,22,2,1,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,39,0,0,0,16,110,0,1,0,0,0,16,110,77,111,100,105,102,105,101,100,0,1,0,0,0,1,111,107,0,0,0,0,0,0,0,240,63,0]},"bson":{},"opts":{"promoteLongs":true,"promoteValues":true,"promoteBuffers":false},"length":75,"requestId":-1746770802,"responseTo":35006614,"responseFlags":8,"cursorId":"0","startingFrom":0,"numberReturned":1,"documents":[{"n":1,"nModified":1,"ok":1}],"cursorNotFound":false,"queryFailure":false,"shardConfigStale":false,"awaitCapable":true,"promoteLongs":true,"promoteValues":true,"promoteBuffers":false,"hashedName":"8cf87ebd96d4f56356284e048c6646c112baf617"}}
+                        var ok = result["ok"];
+
+                        if (ok.n == 1)
+                        {
+                            flag.HideObject(flag.Room);
+                            flag.DetachView();
+                            flag.Room.Objects.Remove(flag.Name); // TODO: we do this because flags are not removed if they get deleted by AI or another client/api call
+                        }
+                        else
+                        {
+                            // error
+                        }
+                    });
+                }
+            });
+
+            
+            
 
         }
 

@@ -43,7 +43,7 @@ namespace Screeps3D.RoomObjects
             {
                 new SelectionRoomObjectButton<Flag>("Change position", (flag) => PlaceFlag.Instance.MoveFlag(flag)),
                 new SelectionRoomObjectButton<Flag>("Change color", (flag) => EditFlag.Instance.ShowEditDialog(flag)),
-                new SelectionRoomObjectButton<Flag>("Remove flag", (flag) => Debug.Log($"{flag.Name} remove flag clicked")),
+                new SelectionRoomObjectButton<Flag>("Remove flag", (flag) => EditFlag.Instance.DeleteFlag(flag)),
                 //new SelectionRoomObjectButton<Flag>("view memory", (flag) => Debug.Log($"{flag.Name} remove flag clicked"))
             };
         }

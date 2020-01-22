@@ -255,6 +255,21 @@ namespace Screeps_API
             return Request("POST", "/api/game/change-flag-color", body, onSuccess: onSuccess, noNotification: noNotification);
         }
 
+        public IEnumerator<UnityWebRequestAsyncOperation> RemoveFlag(string shard, string room, string name, Action<string> onSuccess, bool noNotification = false)
+        {
+            //  POST https://screeps.com/api/game/remove-flag
+            // request: {"room":"E19S38","shard":"shard3","name":"Flag2"}
+            // response: {"ok":1,"result":{"n":1,"nModified":1,"ok":1},"connection":{"id":8,"host":"dhost3.srv.screeps.com","port":25270},"message":{"parsed":true,"index":75,"raw":{"type":"Buffer","data":[75,0,0,0,142,100,226,151,150,40,22,2,1,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,39,0,0,0,16,110,0,1,0,0,0,16,110,77,111,100,105,102,105,101,100,0,1,0,0,0,1,111,107,0,0,0,0,0,0,0,240,63,0]},"data":{"type":"Buffer","data":[75,0,0,0,142,100,226,151,150,40,22,2,1,0,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,39,0,0,0,16,110,0,1,0,0,0,16,110,77,111,100,105,102,105,101,100,0,1,0,0,0,1,111,107,0,0,0,0,0,0,0,240,63,0]},"bson":{},"opts":{"promoteLongs":true,"promoteValues":true,"promoteBuffers":false},"length":75,"requestId":-1746770802,"responseTo":35006614,"responseFlags":8,"cursorId":"0","startingFrom":0,"numberReturned":1,"documents":[{"n":1,"nModified":1,"ok":1}],"cursorNotFound":false,"queryFailure":false,"shardConfigStale":false,"awaitCapable":true,"promoteLongs":true,"promoteValues":true,"promoteBuffers":false,"hashedName":"8cf87ebd96d4f56356284e048c6646c112baf617"}}
+
+            var body = new RequestBody();
+            body.AddField("shard", shard);
+            body.AddField("room", room);
+            body.AddField("name", name);
+
+            return Request("POST", "/api/game/remove-flag", body, onSuccess: onSuccess, noNotification: noNotification);
+        }
+
         
+
     }
 }
