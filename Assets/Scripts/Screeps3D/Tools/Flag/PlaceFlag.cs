@@ -14,18 +14,21 @@ namespace Screeps3D.Tools.Selection
     {
         [SerializeField] private EditFlagPopup _editFlagPopup;
 
-        private bool _isPlacing;
+        private bool _showEditDialog;
         private Vector2Int _position;
 
-
+        private bool moveExistingFlag;
         private Flag _flag;
 
         private void Start()
         {
             Debug.Log("PlaceFlag Start");
-            _flag = new Flag("PlaceFlag");
-            _flag.PrimaryColor = (int)Constants.FlagColor.White;
-            _flag.SecondaryColor = (int)Constants.FlagColor.White;
+            if (!moveExistingFlag)
+            {
+                _flag = new Flag("PlaceFlag");
+                _flag.PrimaryColor = (int)Constants.FlagColor.White;
+                _flag.SecondaryColor = (int)Constants.FlagColor.White;
+            }
 
             _editFlagPopup.OnFlagCreated += FlagCreated;
             _editFlagPopup.OnCancel += CancelFlagCreation;
@@ -37,15 +40,31 @@ namespace Screeps3D.Tools.Selection
             _editFlagPopup.OnCancel -= CancelFlagCreation;
         }
 
+        public void MoveFlag(Flag flag)
+        {
+            _flag = flag;
+
+            _flag.PauseDeltaUpdates = true;
+
+            moveExistingFlag = true;
+            this.enabled = true;
+            _showEditDialog = false;
+            _editFlagPopup.Load(flag);
+        }
+
         private void CancelFlagCreation()
         {
-            _isPlacing = false;
+            _flag.PauseDeltaUpdates = false;
+            moveExistingFlag = false;
+            _showEditDialog = false;
             ToggleEditFlagPopup(false);
         }
 
         private void FlagCreated()
         {
-            _isPlacing = false;
+            _flag.PauseDeltaUpdates = false;
+            moveExistingFlag = false;
+            _showEditDialog = false;
             ToggleEditFlagPopup(false);
         }
 
@@ -58,7 +77,15 @@ namespace Screeps3D.Tools.Selection
 
             if (active.Value)
             {
-                _editFlagPopup.Load(_flag, true);
+                if (!moveExistingFlag)
+                {
+
+                    _editFlagPopup.Load(_flag, true);
+                }
+                else
+                {
+                    this.enabled = false;
+                }
             }
 
             _editFlagPopup.gameObject.SetActive(active.Value);
@@ -66,7 +93,8 @@ namespace Screeps3D.Tools.Selection
 
         private void OnDisable()
         {
-            if (_flag.View != null)
+
+            if (!moveExistingFlag && _flag.View != null)
             {
                 _flag.HideObject(_flag.Room);
             }
@@ -104,16 +132,12 @@ namespace Screeps3D.Tools.Selection
 
         private void Update()
         {
-            if (!InputMonitor.OverUI && !_isPlacing)
+            if (!InputMonitor.OverUI && !_showEditDialog)
             {
                 var rayTarget = Rayprobe();
-                //SelectionOutline.DrawOutline(rayTarget);
                 // move flage location, flag should be alphablended 
-                // TODO: center flag on tile position
-                // we need to spawn / show a flagview prefab and position it. we should only load it when enabled though? and remove it when disabled?
                 if (rayTarget.HasValue)
                 {
-                    // What room are we in? perhaps we should look at PlayerGaze
                     var roomView = rayTarget.Value.collider.GetComponent<RoomView>();
                     if (roomView == null)
                     {
@@ -142,15 +166,9 @@ namespace Screeps3D.Tools.Selection
                 }
             }
 
-            ////if (Input.GetMouseButtonDown(0) && !InputMonitor.OverUI)
-            ////{
-            ////    _isPlacing = true;
-                
-            ////}
-
-            if (!_isPlacing && Input.GetMouseButtonUp(0) && !InputMonitor.OverUI)
+            if (!_showEditDialog && Input.GetMouseButtonUp(0) && !InputMonitor.OverUI)
             {
-                _isPlacing = true;
+                _showEditDialog = true;
                 ToggleEditFlagPopup(true);
             }
         }
@@ -163,7 +181,6 @@ namespace Screeps3D.Tools.Selection
             if (!hit) return null; // Early
 
             return hitInfo;
-            //return hitInfo.transform.gameObject.GetComponent<ObjectView>();
         }
     }
 }
