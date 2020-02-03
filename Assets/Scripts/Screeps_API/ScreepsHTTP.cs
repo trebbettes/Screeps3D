@@ -269,7 +269,17 @@ namespace Screeps_API
             return Request("POST", "/api/game/remove-flag", body, onSuccess: onSuccess, noNotification: noNotification);
         }
 
-        
+        public IEnumerator<UnityWebRequestAsyncOperation> CheckUniqueFlag(string shard, string name, Action<string> onSuccess, bool noNotification = false)
+        {
+            // POST https://screeps.com/api/game/check-unique-flag-name
+            // Request: {"name":"Flag1","shard":"shard3"}
+            // Response: {"error":"name exists"} || {"ok":1}
 
+            var body = new RequestBody();
+            body.AddField("shard", shard);
+            body.AddField("name", name);
+
+            return Request("POST", "/api/game/check-unique-flag-name", body, onSuccess: onSuccess, noNotification: noNotification);
+        }
     }
 }

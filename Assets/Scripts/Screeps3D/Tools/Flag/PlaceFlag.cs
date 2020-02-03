@@ -88,7 +88,7 @@ namespace Screeps3D.Tools.Selection
                 }
             }
 
-            _editFlagPopup.gameObject.SetActive(active.Value);
+            _editFlagPopup?.gameObject?.SetActive(active.Value);
         }
 
         private void OnDisable()

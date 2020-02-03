@@ -31,19 +31,15 @@ namespace Screeps3D.Tools.Selection
 
         private void CancelFlagEdit()
         {
-            ////Debug.Log("CancelFlagEdit");
-            ////_isPlacing = false;
             ToggleEditFlagPopup(false);
         }
         private void FlagColorChanged()
         {
-            ////_isPlacing = false;
             ToggleEditFlagPopup(false);
         }
 
         private void FlagCreated()
         {
-            ////_isPlacing = false;
             ToggleEditFlagPopup(false);
         }
 
@@ -56,7 +52,6 @@ namespace Screeps3D.Tools.Selection
 
         public void DeleteFlag(Flag flag)
         {
-            // TODO: show confirmation dialog?
             PlayerInput.AskQuestion($"Are you sure you want to delete\n{flag.Name}", (bool yes) => {
                 if (yes)
                 {
@@ -83,10 +78,6 @@ namespace Screeps3D.Tools.Selection
                     });
                 }
             });
-
-            
-            
-
         }
 
         private void ToggleEditFlagPopup(bool? active = null)

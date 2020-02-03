@@ -12,6 +12,7 @@ namespace Screeps3D.Tools.Selection
     public class EditFlagPopup : MonoBehaviour
     {
         [SerializeField] private TMP_InputField _flagName;
+        [SerializeField] private TMP_Text _flagNameWarning;
         [SerializeField] private FlagColorToggle _primaryFlagColor;
         [SerializeField] private FlagColorToggle _secondaryFlagColor;
         [SerializeField] private Button _cancelButton;
@@ -55,6 +56,7 @@ namespace Screeps3D.Tools.Selection
             ////Debug.Log($"flag loaded create {newFlag}=> {_flag?.Room?.ShardName}/{_flag?.Room?.RoomName}");
             _flag = flag;
             _newFlag = newFlag;
+            _flagNameWarning.gameObject.SetActive(false);
 
             _flagName.readOnly = !newFlag;
 
@@ -163,11 +165,39 @@ namespace Screeps3D.Tools.Selection
 
         private void FlagNameDeselect(string text)
         {
-            Debug.Log("FlagNameDeselect");
+            if (_flag.Name != _flagName.text)
+            {
+                _flagNameWarning.gameObject.SetActive(false);
+            }
+            _flag.Name = _flagName.text;
+        }
+
+        private void CheckUniqueFlag(string text, Action<bool> isUnique)
+        {
             // POST https://screeps.com/api/game/check-unique-flag-name
             // Request: {"name":"Flag1","shard":"shard3"}
             // Response: {"error":"name exists"} || {"ok":1}
-            _flag.Name = _flagName.text;
+            ScreepsAPI.Http.CheckUniqueFlag(
+                    _flag.Room.ShardName,
+                    _flag.Name,
+                    onSuccess: jsonString =>
+                    {
+                        var result = new JSONObject(jsonString);
+
+                        var ok = result["ok"];
+                        var error = result["error"];
+                        ////Debug.Log(result);
+                        if (error != null && !error.IsNull && error.str == "name exists")
+                        {
+                            _flagNameWarning.SetText($"{text} is already in use, press OK again to confirm.");
+                            _flagNameWarning.gameObject.SetActive(true);
+                            isUnique(false);
+                        }
+                        else
+                        {
+                            isUnique(true);
+                        }
+                    });
         }
 
         private void CancelClicked()
@@ -181,7 +211,31 @@ namespace Screeps3D.Tools.Selection
 
         private void OkClicked()
         {
-            Save();
+            ////Debug.Log("OkClicked");
+
+            if (_flagNameWarning.gameObject.activeSelf)
+            {
+                ////Debug.Log("Save");
+                _flagNameWarning.gameObject.SetActive(false);
+                Save();
+
+                return;
+            }
+
+            CheckUniqueFlag(_flagName.text, (isUnique) =>
+            {
+                if (!isUnique)
+                {
+
+                    if (_flagNameWarning.gameObject.activeSelf)
+                    {
+                        ////Debug.Log("warning");
+                        return;
+                    }
+                }
+
+                Save();
+            });
         }
     }
 }
