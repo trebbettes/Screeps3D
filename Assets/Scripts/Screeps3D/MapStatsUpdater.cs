@@ -7,26 +7,22 @@ using UnityEngine;
 using System.Linq;
 using Screeps3D.Player;
 using System.Collections;
+using System.Text.RegularExpressions;
 
 namespace Screeps3D
 {
     // This seems more like "room info" in regards to status of the room
     public class MapStatsUpdater : BaseSingleton<MapStatsUpdater>
     {
-        private Dictionary<string, RoomInfo> _roomInfo = new Dictionary<string, RoomInfo>();
-
-        // like room chooser, should start a coroutine
-
-        // for starters, lets just fetch data for all loaded rooms.
-
-        // trigger an update for mapstats
-
         private void Start()
         {
             StartCoroutine(Scan());
         }
 
-        public RoomInfo GetRoomInfo(string roomName) => _roomInfo.ContainsKey(roomName) ? _roomInfo[roomName] : null; // Do we need shardname support?
+        public Dictionary<string, RoomInfo> RoomInfo { get; } = new Dictionary<string, RoomInfo>();
+
+        // TODO
+        public RoomInfo GetRoomInfo(string roomName) => RoomInfo.ContainsKey(roomName) ? RoomInfo[roomName] : null; // Do we need shardname support?
         public IEnumerator Scan()
         {
             while (true)
@@ -45,11 +41,11 @@ namespace Screeps3D
                         foreach (var roomName in stats.keys)
                         {
                             // should we store this info on the room so it is available for others?
-                            var roomInfo = _roomInfo.ContainsKey(roomName) ? _roomInfo[roomName] : null;
+                            var roomInfo = RoomInfo.ContainsKey(roomName) ? RoomInfo[roomName] : null;
                             if (roomInfo == null)
                             {
-                                roomInfo = new RoomInfo(stats[roomName]);
-                                _roomInfo[roomName] = roomInfo;
+                                roomInfo = new RoomInfo(roomName);
+                                RoomInfo[roomName] = roomInfo;
                             }
 
                             roomInfo.Unpack(stats[roomName]);
@@ -58,7 +54,20 @@ namespace Screeps3D
                         }
                     };
 
-                    var rooms = RoomManager.Instance.Rooms.Select(r => r.RoomName).ToList();
+                    List<string> rooms;
+                    if (RoomInfo.Count == 0)
+                    {
+                        rooms = ScanSectors();
+                    }
+                    else
+                    {
+
+                        rooms = RoomInfo.Keys.ToList();
+                        rooms.AddRange(RoomManager.Instance.Rooms.Select(r => r.RoomName).ToList());
+                        rooms = rooms.Distinct().ToList();
+                        ////var rooms = RoomManager.Instance.Rooms.Select(r => r.RoomName).ToList();
+                    }
+
                     // what shard should we be getting info from? had the same issue in the nuker
                     // We might have an issue if people use custom shard names, so we can't use shardName, because playerposition shardname is shardX
                     var shardName = PlayerPosition.Instance.ShardName;
@@ -89,6 +98,73 @@ namespace Screeps3D
                 ScreepsAPI.UserManager.CacheUser(userData);
             }
         }
+
+        private List<string> ScanSectors()
+        {
+            var rooms = new List<string>();
+            for (var yo = -10; yo <= 10; yo++)
+            {
+                for (var xo = -10; xo <= 10; xo++)
+                {
+                    var room = XYToRoomName((xo * 10) + 5, (yo * 10) + 5);
+                    rooms.Add(room);
+                    rooms.AddRange(RoomsInSector(room));
+                }
+            }
+
+            return rooms;
+        }
+
+        private List<string> RoomsInSector(string roomName)
+        {
+            var rooms = new List<string>();
+            ////var roomName = jsonRoom["id"].str;
+
+            (int x, int y) = XYFromRoom(roomName);
+            for (var xx = 0; xx < 12; xx++)
+            {
+                for (var yy = 0; yy < 12; yy++)
+                {
+                    var roomName2 = XYToRoomName(x + xx - 6, y + yy - 6);
+                    rooms.Add(roomName2);
+                }
+            }
+
+            return rooms;
+        }
+
+        // We already do something like this in RoomManager, parts of it probably belongs there
+        private string XYToRoomName(int x, int y)
+        {
+            var dx = "E";
+            var dy = "S";
+            if (x < 0)
+            {
+                x = -x - 1;
+                dx = "W";
+            }
+            if (y < 0)
+            {
+                y = -y - 1;
+                dy = "N";
+            }
+            return $"{dx}{x}{dy}{y}";
+        }
+
+        private (int, int) XYFromRoom(string room)
+        {
+            var match = Regex.Match(room, @"^(?<dx>[WE])(?<x>\d+)(?<dy>[NS])(?<y>\d+)$");
+            //let[, dx, x, dy, y] = room.match(/ /)
+            var dx = match.Groups["dx"].Value;
+            var x = int.Parse(match.Groups["x"].Value);
+
+            var dy = match.Groups["dy"].Value;
+            var y = int.Parse(match.Groups["y"].Value);
+            if (dx == "W") x = -x - 1;
+            if (dy == "N") y = -y - 1;
+            return (x, y);
+        }
+
     }
 
     public class RoomInfo
@@ -122,12 +198,13 @@ namespace Screeps3D
         /// Unix timestamp for when it opens if a sector is pending opening
         /// </summary>
         public string OpenTime { get; set; } // TODO: convert to datetime
-
+        public int? Level { get; private set; }
         public bool IsReserved { get; set; }
+        public string RoomName { get; }
 
-        public RoomInfo(JSONObject roomStats)
+        public RoomInfo(string roomName)
         {
-            this.Unpack(roomStats);
+            RoomName = roomName;
         }
 
         internal void Unpack(JSONObject roomStats)
@@ -143,9 +220,9 @@ namespace Screeps3D
                     this.User = ScreepsAPI.UserManager.GetUser(userId);
                 }
 
-                var level = (int)own["level"].n;
+                this.Level = (int)own["level"].n;
 
-                this.IsReserved = level == 0;
+                this.IsReserved = this.Level == 0;
             }
 
             this.Status = status.str;
