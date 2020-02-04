@@ -21,12 +21,9 @@ namespace Screeps3D.Rooms.Views
         public void Init(Room room)
         {
             this.room = room;
+            showSafeMode = false;
 
             _roomInfo = MapStatsUpdater.Instance.GetRoomInfo(room.RoomName);
-            if (_roomInfo != null)
-            {
-                showSafeMode = _roomInfo.HasSafeMode;
-            }
         }
 
 
@@ -40,6 +37,8 @@ namespace Screeps3D.Rooms.Views
 
             if (showSafeMode != _roomInfo.HasSafeMode)
             {
+                showSafeMode = _roomInfo.HasSafeMode;
+
                 // update safe mode
                 if (_roomInfo.HasSafeMode)
                 {
@@ -60,7 +59,6 @@ namespace Screeps3D.Rooms.Views
                     _east.Stop();
                     _west.Stop();
                 }
-
             }
         }
 
