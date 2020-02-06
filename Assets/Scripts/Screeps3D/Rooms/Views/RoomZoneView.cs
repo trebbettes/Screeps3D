@@ -31,7 +31,12 @@ namespace Screeps3D.Rooms.Views
         {
             // detect changes and update zone accordingly
             if (_roomInfo == null) {
-                _roomInfo = MapStatsUpdater.Instance.GetRoomInfo(room.RoomName);
+
+                if (room != null)
+                {
+                    _roomInfo = MapStatsUpdater.Instance.GetRoomInfo(room.RoomName);
+                }
+
                 return;
             }
 
