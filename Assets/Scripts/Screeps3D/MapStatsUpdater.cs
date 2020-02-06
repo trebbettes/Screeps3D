@@ -71,7 +71,7 @@ namespace Screeps3D
                     // what shard should we be getting info from? had the same issue in the nuker
                     // We might have an issue if people use custom shard names, so we can't use shardName, because playerposition shardname is shardX
                     var shardName = PlayerPosition.Instance.ShardName;
-
+                    // TODO: could probably switch to "mineral0" we still recieve owner info,  but also info about what mineral, seems like we also recieve openTime and respawn area
                     ScreepsAPI.Http.GetMapStats(rooms, shardName, "owner0", serverCallback);
                 }
                 catch (Exception ex)
@@ -242,6 +242,7 @@ namespace Screeps3D
             this.HasSafeMode = safeMode != null && !safeMode.IsNull && safeMode.b;
 
             // could also store mineral type and density for future use in map overview
+            // hardSign indicates a planned novice or respawn area
         }
     }
 }
