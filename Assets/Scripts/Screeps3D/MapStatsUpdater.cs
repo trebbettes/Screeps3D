@@ -23,80 +23,159 @@ namespace Screeps3D
 
         // TODO
         public RoomInfo GetRoomInfo(string roomName) => RoomInfo.ContainsKey(roomName) ? RoomInfo[roomName] : null; // Do we need shardname support?
+
         public IEnumerator Scan()
         {
             while (true)
             {
                 yield return new WaitForSeconds(5);
 
-                try
-                {
-                    Action<string> serverCallback = jsonString =>
-                    {
-                        var result = new JSONObject(jsonString);
+                Debug.Log($"scanning sectors");
+                List<string> rooms = ScanSectorsAroundPlayer();
+                ////if (RoomInfo.Count == 0)
+                ////{
+                ////    Debug.Log($"scanning sectors"); // 0 seconds
+                ////    rooms = ScanSectors();
+                ////}
+                ////else
+                ////{
+                ////    Debug.Log($"using existing roominfo keys"); // 0 seconds
+                ////    rooms = RoomInfo.Keys.ToList();
+                ////    rooms.AddRange(RoomManager.Instance.Rooms.Select(r => r.RoomName).ToList());
+                ////    rooms = rooms.Distinct().ToList();
+                ////    ////var rooms = RoomManager.Instance.Rooms.Select(r => r.RoomName).ToList();
+                ////}
 
-                        UnpackUsers(result["users"]);
+                Debug.Log($"Getting mapstats {rooms.Count}"); // 10 seconds
+                // what shard should we be getting info from? had the same issue in the nuker
+                // We might have an issue if people use custom shard names, so we can't use shardName, because playerposition shardname is shardX
+                var shardName = PlayerPosition.Instance.ShardName;
+                // TODO: could probably switch to "mineral0" we still recieve owner info,  but also info about what mineral, seems like we also recieve openTime and respawn area
+                //yield return 
+                ScreepsAPI.Http.GetMapStats(rooms, shardName, "owner0", GetMapStatsCallback);
 
-                        var stats = result["stats"];
-                        foreach (var roomName in stats.keys)
-                        {
-                            // should we store this info on the room so it is available for others?
-                            var roomInfo = RoomInfo.ContainsKey(roomName) ? RoomInfo[roomName] : null;
-                            if (roomInfo == null)
-                            {
-                                roomInfo = new RoomInfo(roomName);
-                                RoomInfo[roomName] = roomInfo;
-                            }
-
-                            roomInfo.Unpack(stats[roomName]);
-
-                            roomInfo.Time = (long)result["gameTime"].n;
-                        }
-                    };
-
-                    List<string> rooms;
-                    if (RoomInfo.Count == 0)
-                    {
-                        rooms = ScanSectors();
-                    }
-                    else
-                    {
-
-                        rooms = RoomInfo.Keys.ToList();
-                        rooms.AddRange(RoomManager.Instance.Rooms.Select(r => r.RoomName).ToList());
-                        rooms = rooms.Distinct().ToList();
-                        ////var rooms = RoomManager.Instance.Rooms.Select(r => r.RoomName).ToList();
-                    }
-
-                    // what shard should we be getting info from? had the same issue in the nuker
-                    // We might have an issue if people use custom shard names, so we can't use shardName, because playerposition shardname is shardX
-                    var shardName = PlayerPosition.Instance.ShardName;
-                    // TODO: could probably switch to "mineral0" we still recieve owner info,  but also info about what mineral, seems like we also recieve openTime and respawn area
-                    ScreepsAPI.Http.GetMapStats(rooms, shardName, "owner0", serverCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
+                Debug.Log($"Waiting 60 seconds");
                 // https://docs.screeps.com/auth-tokens.html#Rate-Limiting
                 // POST /api/game/map-stats	60 / hour
-                yield return new WaitForSeconds(60);
+                yield return new WaitForSecondsRealtime(60);
             }
         }
 
-        private void UnpackUsers(JSONObject data)
+        private void GetMapStatsCallback(string jsonString)
+        {
+            StartCoroutine(UnpackMapStatsData(jsonString));
+        }
+
+        private IEnumerator UnpackMapStatsData(string jsonString)
+        {
+            Debug.Log($"Converting to jsonObject");
+            var result = new JSONObject(jsonString); // 1 second
+            Debug.Log($"Unpacking users {result["users"]?.keys?.Count}");
+            yield return StartCoroutine(UnpackUsers(result)); // 14 seconds
+            Debug.Log("Unpacking users done");
+
+            var stats = result["stats"];
+            Debug.Log($"Unpacking rooms {stats?.keys?.Count}"); // 14 seconds
+            var index = 0;
+            if (stats == null)
+            {
+                Debug.Log("stats null, no rooms");
+
+                yield break;
+            }
+
+            foreach (var roomName in stats.keys)
+            {
+                index++;
+
+                if (index % 100 == 0)
+                {
+                    //Debug.Log(index);
+                    yield return new WaitForSeconds(0.1f);
+                }
+
+
+                // should we store this info on the room so it is available for others?
+                var roomInfo = RoomInfo.ContainsKey(roomName) ? RoomInfo[roomName] : null;
+                if (roomInfo == null)
+                {
+                    roomInfo = new RoomInfo(roomName);
+                    RoomInfo[roomName] = roomInfo;
+                }
+
+                roomInfo.Unpack(stats[roomName]);
+
+                roomInfo.Time = (long)result["gameTime"].n;
+            }
+            Debug.Log("Unpacking rooms done");
+        }
+
+        private IEnumerator UnpackUsers(JSONObject data)
         {
             var usersData = data["users"];
             if (usersData == null)
             {
-                return;
+                yield break;
             }
 
+            if (usersData == null)
+            {
+                Debug.Log("usersData null, no users");
+                yield break;
+            }
+
+            var index = 0;
             foreach (var id in usersData.keys)
             {
+                index++;
+
+                if (index % 10 == 0)
+                {
+                    //Debug.Log(index);
+                    yield return new WaitForSeconds(0.1f);
+                }
+
                 var userData = usersData[id];
-                ScreepsAPI.UserManager.CacheUser(userData);
+                try
+                {
+                    ScreepsAPI.UserManager.CacheUser(userData);
+                }
+                catch (Exception ex)
+                {
+                    //Debug.LogError(ex.Message);
+                    Debug.Log(userData.ToString());
+                }
             }
+        }
+
+        private List<string> ScanSectorsAroundPlayer()
+        {
+            // TODO: scan less sectors
+            var currentRoom = PlayerPosition.Instance.Room;
+            // Generate roomnames allowing sectors to surround current room
+
+            (int cX, int cY) = SectorCenterXYFromRoom(currentRoom.RoomName);
+
+            var gridRange = 2;
+            var sectorWidth = 10;
+
+            var topY = cY - (5 + gridRange * sectorWidth);
+            var bottomY = cY + (4 + gridRange * sectorWidth);
+
+            var leftX = cX - (5 + gridRange * sectorWidth);
+            var rightX = cX + (4 + gridRange * sectorWidth);
+
+            var rooms = new List<string>();
+            for (var yo = topY; yo <= bottomY; yo++)
+            {
+                for (var xo = leftX; xo <= rightX; xo++)
+                {
+                    var room = XYToRoomName(xo, yo);
+                    rooms.Add(room);
+                }
+            }
+
+            return rooms;
         }
 
         private List<string> ScanSectors()
@@ -151,10 +230,11 @@ namespace Screeps3D
             return $"{dx}{x}{dy}{y}";
         }
 
+        // TODO: maybe we should not regex?
         private (int, int) XYFromRoom(string room)
         {
             var match = Regex.Match(room, @"^(?<dx>[WE])(?<x>\d+)(?<dy>[NS])(?<y>\d+)$");
-            //let[, dx, x, dy, y] = room.match(/ /)
+
             var dx = match.Groups["dx"].Value;
             var x = int.Parse(match.Groups["x"].Value);
 
@@ -165,6 +245,31 @@ namespace Screeps3D
             return (x, y);
         }
 
+        private string SectorCenterFromRoom(string room)
+        {
+            int split = room.IndexOf('N');
+            if (split == -1)
+            {
+                split = room.IndexOf('S');
+            }
+            string X = room.Substring(0, split - 1);
+            string Y = room.Substring(split, room.Length - split - 1);
+
+            return $"{X}5{Y}5";
+        }
+
+        private (int, int) SectorCenterXYFromRoom(string room)
+        {
+            int split = room.IndexOf('N');
+            if (split == -1)
+            {
+                split = room.IndexOf('S');
+            }
+            string x = room.Substring(0, split - 1).Substring(1);
+            string y = room.Substring(split, room.Length - split - 1).Substring(1);
+
+            return (int.Parse($"{x}5"), int.Parse($"{y}5"));
+        }
     }
 
     public class RoomInfo
