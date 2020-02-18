@@ -2,6 +2,7 @@
 using Screeps3D.Rooms;
 using Screeps_API;
 using UnityEngine;
+using System;
 
 namespace Screeps3D.RoomObjects
 {
@@ -23,7 +24,7 @@ namespace Screeps3D.RoomObjects
         Transform transform { get; }
     }
 
-    internal interface IRoomObject
+    public interface IRoomObject
     {
         Room Room { get; }
     }
@@ -116,5 +117,25 @@ namespace Screeps3D.RoomObjects
         // RoomPosition
         string DestinationRoom { get; set; }
         string DestinationPosition { get; set; }
+    }
+
+    internal interface ILevel
+    {
+        int Level { get; set; }
+        int LevelMax { get; set; }
+    }
+
+    internal interface IButtons 
+    {
+        List<IRoomObjectPanelButton> GetButtonActions();
+    }
+    public interface IRoomObjectPanelButton
+    {
+        string Text { get; set; }
+    }
+
+    public interface IRoomObjectPanelButton<T> : IRoomObjectPanelButton where T: IRoomObject
+    {
+        void OnClick(T roomObject);
     }
 }

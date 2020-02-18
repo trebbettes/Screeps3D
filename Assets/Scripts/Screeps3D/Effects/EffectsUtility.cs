@@ -50,6 +50,17 @@ namespace Screeps3D.Effects
         }
 
         /// <summary>
+        /// Render an electric explosion around a creep
+        /// </summary>
+        /// <param name="origin"></param>
+        public static void ElectricExplosion(RoomObject origin)
+        {
+            var go = PoolLoader.Load(ElectricExplosionEffect.PATH);
+            var effect = go.GetComponent<ElectricExplosionEffect>();
+            effect.Load(origin); // TODO: need to unload if creep exists / portals
+        }
+
+        /// <summary>
         /// Render a nuke explosion at target
         /// </summary>
         /// <param name="position"></param>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Common;
 using Screeps3D;
 using UnityEngine;
@@ -81,17 +82,34 @@ namespace Screeps_API
             Me = UserManager.CacheUser(obj);
 
             SetConnectionStatus(true);
-            
-            Http.Request("GET", "/api/game/time", null, SetTime);
-            // Http.Request("GET", "/api/game/time?shard=shard3", null, SetTime); is the correct syntax for MMO, we have to fix that I guess, what about PS, do we even know what shard we are on at this point?
+            // Request URL: https://screeps.com/api/user/world-start-room
+            // {"ok":1,"room":["shard3/E19S38"]}
+
+            //Http.Request("GET", "/api/game/time", null, SetTime);
+            Http.Request("GET", "/api/user/world-start-room", null, GetShardSetTime);
+        }
+        private void GetShardSetTime(string obj)
+        {
+            //Debug.Log(obj);
+            var worldStartRooms = new JSONObject(obj)["room"];
+            if (worldStartRooms != null)
+            {
+                var firstRoom = worldStartRooms.list.FirstOrDefault();
+                var firstRoomInfo = firstRoom.str.Split('/');
+                var shard = firstRoomInfo[0];
+
+                Http.Request("GET", $"/api/game/time?shard={shard}", null, SetTime);
+            }
         }
 
         private void SetTime(string obj)
         {
+            //Debug.Log(obj);
             var timeData = new JSONObject(obj)["time"];
             if (timeData != null)
             {
                 Time = (int) timeData.n;
+                //Debug.Log($"time/tick is now {Time}");
             }
         }
 

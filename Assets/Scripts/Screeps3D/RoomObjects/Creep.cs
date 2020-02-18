@@ -107,16 +107,15 @@ namespace Screeps3D.RoomObjects
                 Fatigue = fatigueData.n;
             }
             
-            Body.Unpack(data);
+            Body.Unpack(data, initial);
         }
         
         internal override void Delta(JSONObject delta, Room room)
         {
-            
-
             if (!Initialized)
             {
                 Unpack(delta, true);
+                Initialized = true;
             }
             else
             {

@@ -46,6 +46,7 @@ After installation you can open the project in unity, and in the asset menu you 
 * Merges in git
     * https://www.youtube.com/watch?v=yQvbaBgxA34
     * https://docs.unity3d.com/Manual/SmartMerge.html
+	* open cli run `git mergetool`
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. If there is an existing issue you would like to tackle, please mention that in the issue to allow others to collab with you :)
 

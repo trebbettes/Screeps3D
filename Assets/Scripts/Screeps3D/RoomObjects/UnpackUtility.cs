@@ -131,6 +131,15 @@ namespace Screeps3D.RoomObjects
             }
         }
 
+        internal static void Level(ILevel obj, JSONObject data)
+        {
+            var levelData = data["level"];
+            if (levelData != null)
+            {
+                obj.Level = (int)levelData.n;
+            }
+        }
+
         internal static void Store(IStoreObject obj, JSONObject data)
         {
 
@@ -217,6 +226,7 @@ namespace Screeps3D.RoomObjects
             var actionLog = data["actionLog"];
             if (actionLog != null)
             {
+                actionObject.Actions.Clear();
                 foreach (var key in actionLog.keys)
                 {
                     var actionData = actionLog[key];
